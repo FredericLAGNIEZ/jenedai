@@ -114,13 +114,14 @@ def main():
             print(f"[WARN] No shared AWS secrets available")
         else:
             for secret_name, secret_value in shared_secrets.items():
-                add_space_secret(api, space_id, secret_name, secret_value)
+                if not secret_value:
+                    print(f"[WARN] {secret_name} is empty, skipping")
+                else:
+                    add_space_secret(api, space_id, secret_name, secret_value)
         
         # Add service-specific secrets
         service_secrets = get_service_secrets(service)
-        if not service_secrets:
-            print(f"[WARN] No service-specific secrets available for {service}")
-        else:
+        if service_secrets:
             for secret_name, secret_value in service_secrets.items():
                 add_space_secret(api, space_id, secret_name, secret_value)
     
