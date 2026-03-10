@@ -3,6 +3,7 @@ name: Push Service Files to HF
 on:
   push:
     paths:
+      - '.github/scripts/hf_push_services.py'
       - 'Services/**'
       - '.env'
   workflow_dispatch:
