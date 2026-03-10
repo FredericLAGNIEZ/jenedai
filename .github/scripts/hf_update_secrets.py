@@ -7,7 +7,6 @@ Distributes AWS credentials + service-specific secrets to each space
 
 import os
 import sys
-import json
 from pathlib import Path
 from dotenv import load_dotenv
 from huggingface_hub import HfApi
@@ -60,7 +59,7 @@ def add_space_secret(api, space_id, secret_name, secret_value):
     try:
         api.add_space_secret(
             repo_id=space_id,
-            name=secret_name,
+            key=secret_name,
             value=secret_value
         )
         print(f"[OK] Secret '{secret_name}' updated in '{space_id}'")
