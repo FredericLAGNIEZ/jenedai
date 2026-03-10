@@ -49,13 +49,13 @@ else:
             # Fallback si icons.json n'existe pas
             return {
                 "Airflow": "https://airflow.apache.org/images/feature-image.png",
-                "MLflow": "https://mlflow.org/docs/latest/_static/MLflow-logo.png",
+                "MLflow": "https://mlflow.org/img/MLflow-logo.png",
                 "JupyterLab": "https://jupyter.org/assets/logos/rectanglelogo-greytext-orangedot-invertnull.svg",
                 "Streamlit": "https://streamlit.io/images/brand/streamlit-logo-secondary-coloredDark.png",
                 "n8n": "https://n8n.io/favicon.ico",
-                "Gradio": "https://huggingface.co/front/assets/gradio-logo.svg",
+                "Gradio": "https://www.gradio.app/assets/github-logo.svg",
                 "EvidentlyAI": "https://raw.githubusercontent.com/evidentlyai/evidently/master/docs/assets/logo.svg",
-                "ClickHouse": "https://clickhouse.com/images/logo.svg"
+                "ClickHouse": "https://clickhouse.com/_next/static/media/logo-full.ac8102d5.svg"
             }
 
     SERVICE_ICONS = load_service_icons()
@@ -168,7 +168,7 @@ else:
                 text-align: center;
                 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             ">
-                <h4 style="margin-top: 0;">🪣 S3/MinIO</h4>
+                <h4 style="margin-top: 0;">🪣 S3</h4>
                 <p style="font-size: 12px; word-break: break-all;">{s3_urls}</p>
                 <a href="{s3_urls}" target="_blank" style="
                     display: inline-block;
