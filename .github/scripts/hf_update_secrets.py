@@ -30,13 +30,13 @@ def get_shared_secrets():
     """Get AWS shared credentials"""
     secrets = {}
     
-    aws_key = os.getenv("AWS_ACCESS_KEY_ID", "")
+    aws_key = os.getenv("AWS_ACCESS_KEY_ID")
     if aws_key:
         secrets["AWS_ACCESS_KEY_ID"] = aws_key
     else:
         print("[WARN] AWS_ACCESS_KEY_ID not defined")
     
-    aws_secret = os.getenv("AWS_SECRET_ACCESS_KEY", "")
+    aws_secret = os.getenv("AWS_SECRET_ACCESS_KEY")
     if aws_secret:
         secrets["AWS_SECRET_ACCESS_KEY"] = aws_secret
     else:
@@ -67,7 +67,7 @@ def get_service_secrets(service):
         if value:
             secrets[env_var] = value
         else:
-            print(f"[WARN] {env_var} not defined for {service}")
+            print(f"[WARN] '{env_var}' not defined for '{service}'")
     
     return secrets
 
