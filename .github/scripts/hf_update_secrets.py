@@ -68,7 +68,7 @@ def get_service_secrets(service):
     env_vars = service_secrets_map.get(service, [])
     
     if not env_vars:
-        print(f"[WARN] No secrets mapped for service '{service}'")
+        print(f"[WARN] No specific secrets mapped for service '{service}'")
         return secrets
     
     for env_var in env_vars:
