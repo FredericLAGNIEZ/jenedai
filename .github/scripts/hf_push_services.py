@@ -42,6 +42,21 @@ def has_changes(path):
         print(f"[ERR] Git diff check failed: {str(e)}")
         return False
 
+def check_critical_files_changed():
+    """Check if any critical files have changed that require all services to be pushed"""
+    repo_root = Path(__file__).parent.parent.parent
+    critical_files = [
+        repo_root / ".github" / "scripts" / "hf_push_services.py",
+        repo_root / ".github" / "scripts" / "hf_create_spaces.py",
+        repo_root / ".env"
+    ]
+    
+    for critical_file in critical_files:
+        if critical_file.exists() and has_changes(str(critical_file)):
+            return True
+    
+    return False
+
 def push_service_to_hf(api, service, username):
     """Push service directory to HuggingFace Space (includes .env)"""
     service_path = Path(__file__).parent.parent.parent / "Services" / service
@@ -116,9 +131,9 @@ def main():
         # Mode force push: mettre à jour tous les services
         print("[*] Force push mode - will update all services")
         services_to_push = services
-    elif has_changes(str(env_file)):
-        # Si .env a changé, pousser tous les services
-        print("[*] .env has changed - will push all services")
+    elif check_critical_files_changed():
+        # Si fichiers critiques ont changé, pousser tous les services
+        print("[*] Critical files have changed - will push all services")
         services_to_push = services
     else:
         # Vérifier chaque service pour des changements
