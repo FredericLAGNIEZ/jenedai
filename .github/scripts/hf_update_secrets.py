@@ -37,11 +37,11 @@ def get_service_secrets(service):
     """Get service-specific secrets from environment (e.g., AIRFLOW_PASSWORD)"""
     # Mapping of service -> environment variables
     service_secrets_map = {
-        "Airflow": ["AIRFLOW_ADMIN_PASSWORD", "AIRFLOW_DATABASE_URL"],
-        "MLflow": ["MLFLOW_TRACKING_USERNAME", "MLFLOW_TRACKING_PASSWORD"],
-        "JupyterLab": ["JUPYTER_TOKEN", "JUPYTER_PASSWORD"],
+        "Airflow": ["AIRFLOW_POSTGRES_CONN_ID"],
+        "MLflow": ["MLFLOW_POSTGRESQL_URI, MLFLOW_S3_ENDPOINT_URL"],
+        "JupyterLab": ["JUPYTER_TOKEN"],
         "Streamlit": ["STREAMLIT_SERVER_HEADLESS", "STREAMLIT_LOGGER_LEVEL"],
-        "n8n": ["N8N_USER_MANAGEMENT_JWT_SECRET", "N8N_ENCRYPTION_KEY"],
+        "n8n": ["N8N_DB_POSTGRES_URI"],
     }
     
     secrets = {}
