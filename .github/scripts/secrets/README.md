@@ -53,7 +53,6 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 | Variable | Description | Exemple |
 |----------|------------|---------|
 | `HF_TOKEN` | Token Hugging Face | `hf_xxxx...` |
-| `HF_USERNAME` | Nom d'utilisateur HF | `your-username` |
 | `AWS_ACCESS_KEY_ID` | Clé d'accès AWS | `AKIA...` |
 | `AWS_SECRET_ACCESS_KEY` | Secret AWS | `wJalrXUt...` |
 | `AWS_DEFAULT_REGION` | Région AWS | `eu-west-1` |
