@@ -32,4 +32,8 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          python .github/scripts/hf_push_services.py
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            python .github/scripts/hf_push_services.py --force-push
+          else
+            python .github/scripts/hf_push_services.py
+          fi
