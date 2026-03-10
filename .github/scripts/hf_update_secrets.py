@@ -28,10 +28,21 @@ def get_services():
 
 def get_shared_secrets():
     """Get AWS shared credentials"""
-    return {
-        "AWS_ACCESS_KEY_ID": os.getenv("AWS_ACCESS_KEY_ID", ""),
-        "AWS_SECRET_ACCESS_KEY": os.getenv("AWS_SECRET_ACCESS_KEY", ""),
-    }
+    secrets = {}
+    
+    aws_key = os.getenv("AWS_ACCESS_KEY_ID", "")
+    if aws_key:
+        secrets["AWS_ACCESS_KEY_ID"] = aws_key
+    else:
+        print("[WARN] AWS_ACCESS_KEY_ID not defined")
+    
+    aws_secret = os.getenv("AWS_SECRET_ACCESS_KEY", "")
+    if aws_secret:
+        secrets["AWS_SECRET_ACCESS_KEY"] = aws_secret
+    else:
+        print("[WARN] AWS_SECRET_ACCESS_KEY not defined")
+    
+    return secrets
 
 def get_service_secrets(service):
     """Get service-specific secrets from environment (e.g., AIRFLOW_PASSWORD)"""
@@ -47,10 +58,16 @@ def get_service_secrets(service):
     secrets = {}
     env_vars = service_secrets_map.get(service, [])
     
+    if not env_vars:
+        print(f"[WARN] No secrets mapped for service '{service}'")
+        return secrets
+    
     for env_var in env_vars:
         value = os.getenv(env_var)
         if value:
             secrets[env_var] = value
+        else:
+            print(f"[WARN] {env_var} not defined for {service}")
     
     return secrets
 
@@ -93,14 +110,19 @@ def main():
         print(f"\n[*] Processing space: {space_id}")
         
         # Add shared AWS secrets
-        for secret_name, secret_value in shared_secrets.items():
-            if secret_value:
+        if not shared_secrets:
+            print(f"[WARN] No shared AWS secrets available")
+        else:
+            for secret_name, secret_value in shared_secrets.items():
                 add_space_secret(api, space_id, secret_name, secret_value)
         
         # Add service-specific secrets
         service_secrets = get_service_secrets(service)
-        for secret_name, secret_value in service_secrets.items():
-            add_space_secret(api, space_id, secret_name, secret_value)
+        if not service_secrets:
+            print(f"[WARN] No service-specific secrets available for {service}")
+        else:
+            for secret_name, secret_value in service_secrets.items():
+                add_space_secret(api, space_id, secret_name, secret_value)
     
     print("\n" + "=" * 60)
     print("[OK] Secrets update completed")
