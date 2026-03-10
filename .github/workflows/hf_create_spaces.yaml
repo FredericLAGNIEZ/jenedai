@@ -3,6 +3,7 @@ name: Create HF Spaces
 on:
   push:
     paths:
+      - '.github/scripts/hf_create_spaces.py'
       - '.env'
   workflow_dispatch:
 
