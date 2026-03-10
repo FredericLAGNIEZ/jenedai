@@ -81,7 +81,10 @@ def push_service_to_hf(api, service, username):
         return False
 
 def main():
-    """Main function: push only services with changes"""
+    """Main function: push only services with changes (or all if --force-push)"""
+    # Parse command line arguments
+    force_push = "--force-push" in sys.argv
+    
     token = os.getenv("HF_TOKEN")
     if not token:
         print("[ERR] HF_TOKEN environment variable not set")
@@ -109,12 +112,16 @@ def main():
     
     services_to_push = []
     
-    # If .env changed, push all services
-    if has_changes(str(env_file)):
+    if force_push:
+        # Mode force push: mettre à jour tous les services
+        print("[*] Force push mode - will update all services")
+        services_to_push = services
+    elif has_changes(str(env_file)):
+        # Si .env a changé, pousser tous les services
         print("[*] .env has changed - will push all services")
         services_to_push = services
     else:
-        # Check each service directory for changes
+        # Vérifier chaque service pour des changements
         for service in services:
             service_path = services_dir / service
             if service_path.exists() and has_changes(str(service_path)):
