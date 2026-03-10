@@ -29,7 +29,6 @@ def create_space(api, space_name, private=False):
     """Create a HuggingFace Space if it doesn't exist"""
     try:
         # Check if space already exists
-        repo_url = f"https://huggingface.co/spaces/{api.whoami()['name']}/{space_name}"
         try:
             api.space_info(f"{api.whoami()['name']}/{space_name}")
             print(f"[*] Space '{space_name}' already exists")
@@ -38,8 +37,9 @@ def create_space(api, space_name, private=False):
             pass
         
         # Create space
-        repo = api.create_repo(
+        api.create_repo(
             repo_id=space_name,
+            repo_type="space",
             space_sdk="docker",
             private=private,
             exist_ok=True
