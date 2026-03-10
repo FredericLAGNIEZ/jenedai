@@ -38,7 +38,7 @@ def get_service_secrets(service):
     # Mapping of service -> environment variables
     service_secrets_map = {
         "Airflow": ["AIRFLOW_POSTGRES_CONN_ID"],
-        "MLflow": ["MLFLOW_POSTGRESQL_URI, MLFLOW_S3_ENDPOINT_URL"],
+        "MLflow": ["MLFLOW_POSTGRESQL_URI", "MLFLOW_S3_ENDPOINT_URL"],
         "JupyterLab": ["JUPYTER_TOKEN"],
         "Streamlit": ["STREAMLIT_SERVER_HEADLESS", "STREAMLIT_LOGGER_LEVEL"],
         "n8n": ["N8N_DB_POSTGRES_URI"],
