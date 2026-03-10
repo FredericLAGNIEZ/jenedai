@@ -26,21 +26,30 @@ def get_services():
     
     return [s.strip() for s in services_str.split(",") if s.strip()]
 
+def _get_env_secret(env_var, context=""):
+    """Helper to get environment variable and log warning if not found"""
+    value = os.getenv(env_var)
+    if not value:
+        context_str = f" for {context}" if context else ""
+        print(f"[WARN] '{env_var}' not defined{context_str}")
+    return value
+
+
 def get_shared_secrets():
     """Get AWS shared credentials"""
+    shared_env_vars = [
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_DEFAULT_REGION",
+    ]
+    
     secrets = {}
-    
-    aws_key = os.getenv("AWS_ACCESS_KEY_ID")
-    if aws_key:
-        secrets["AWS_ACCESS_KEY_ID"] = aws_key
-    else:
-        print("[WARN] AWS_ACCESS_KEY_ID not defined")
-    
-    aws_secret = os.getenv("AWS_SECRET_ACCESS_KEY")
-    if aws_secret:
-        secrets["AWS_SECRET_ACCESS_KEY"] = aws_secret
-    else:
-        print("[WARN] AWS_SECRET_ACCESS_KEY not defined")
+    for env_var in shared_env_vars:
+        value = _get_env_secret(env_var)
+        if value:
+            secrets[env_var] = value
+        else:
+            print(f"[WARN] '{env_var}' not defined")
     
     return secrets
 
@@ -62,11 +71,9 @@ def get_service_secrets(service):
         return secrets
     
     for env_var in env_vars:
-        value = os.getenv(env_var)
+        value = _get_env_secret(env_var, service)
         if value:
             secrets[env_var] = value
-        else:
-            print(f"[WARN] '{env_var}' not defined for '{service}'")
     
     return secrets
 
