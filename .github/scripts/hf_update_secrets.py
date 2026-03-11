@@ -41,7 +41,8 @@ def get_shared_secrets():
         "AWS_ACCESS_KEY_ID",
         "AWS_SECRET_ACCESS_KEY",
         "AWS_DEFAULT_REGION",
-        "AWS_REGION"
+        "AWS_REGION",
+        "AWS_ENDPOINT_URL"
     ]
     
     secrets = {}
@@ -58,10 +59,10 @@ def get_service_secrets(service):
     """Get service-specific secrets from environment (e.g., AIRFLOW_PASSWORD)"""
     # Mapping of service -> environment variables
     service_secrets_map = {
-        "Airflow": ["AIRFLOW_POSTGRES_CONN_ID"],
+        "Airflow": ["AIRFLOW_ADMIN_USER", "AIRFLOW_ADMIN_PASSWORD", "AIRFLOW__DATABASE__SQL_ALCHEMY_CONN", "AIRFLOW__WEBSERVER__SECRET_KEY"],
         "MLflow": ["MLFLOW_POSTGRESS_URI", "MLFLOW_S3_ENDPOINT_URL"],
         "JupyterLab": ["JUPYTER_TOKEN"],
-        "n8n": ["N8N_DB_POSTGRES_URI"],
+        "n8n": ["N8N_ENCRYPTION_KEY", "DB_TYPE", "DB_POSTGRESDB_USER", "DB_POSTGRESDB_PASSWORD", "DB_POSTGRESDB_HOST", "DB_POSTGRESDB_PORT", "DB_POSTGRESDB_DATABASE"],
     }
     
     secrets = {}

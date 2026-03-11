@@ -31,8 +31,8 @@ else:
     environment = os.getenv("Environment")
     services_names_str = os.getenv("ServicesNames")
     github_url = os.getenv("GitHubURL")
-    s3_urls = os.getenv("S3URLs")
-    database_urls = os.getenv("DatabaseURLs")
+    supabase_url = os.getenv("SupabaseURL")
+    prefect_url = os.getenv("PrefectURL")
 
     # Parser les ServicesNames (format CSV)
     services_names = [s.strip() for s in services_names_str.split(",") if s.strip()]
@@ -129,7 +129,7 @@ else:
     # Section Ressources Externes
     st.subheader("🔐 Ressources Externes")
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
 
     if github_url:
         with col1:
@@ -168,7 +168,7 @@ else:
                 text-align: center;
                 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             ">
-                <h4 style="margin-top: 0;">🪣 S3</h4>
+                <h4 style="margin-top: 0;">🪣 S3 / POSTGRE</h4>
                 <p style="font-size: 12px; word-break: break-all;">{s3_urls}</p>
                 <a href="{s3_urls}" target="_blank" style="
                     display: inline-block;
@@ -183,7 +183,7 @@ else:
             </div>
             """, unsafe_allow_html=True)
 
-    if database_urls:
+    if prefect_url:
         with col3:
             st.markdown(f"""
             <div style="
@@ -194,9 +194,9 @@ else:
                 text-align: center;
                 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             ">
-                <h4 style="margin-top: 0;">🗄️ PostgreSQL</h4>
-                <p style="font-size: 12px; word-break: break-all;">{database_urls}</p>
-                <a href="{database_urls}" target="_blank" style="
+                <h4 style="margin-top: 0;">🗄️ Orchestrateur</h4>
+                <p style="font-size: 12px; word-break: break-all;">{prefect_url}</p>
+                <a href="{prefect_url}" target="_blank" style="
                     display: inline-block;
                     padding: 8px 16px;
                     background-color: white;
@@ -209,7 +209,7 @@ else:
             </div>
             """, unsafe_allow_html=True)
 
-    if not any([github_url, s3_urls, database_urls]):
-        st.info("❌ Aucune ressource externe configurée (GitHub, S3, PostgreSQL)")
+    if not any([github_url, supabase_url, prefect_url]):
+        st.info("❌ Aucune ressource externe configurée (GitHub, S3, PostgreSQL, Prefect)")
 
     st.markdown("---")
