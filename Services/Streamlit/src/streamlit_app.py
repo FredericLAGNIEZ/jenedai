@@ -75,7 +75,7 @@ else:
         with col3:
             st.metric("Services", len(services_names))
         with col4:
-            external_count = sum([bool(x) for x in [github_url, s3_urls, database_urls]])
+            external_count = sum([bool(x) for x in [github_url, supabase_url, prefect_url]])
             st.metric("Ressources Ext.", external_count)
 
     # Section Services avec icones officielles
@@ -157,7 +157,7 @@ else:
             </div>
             """, unsafe_allow_html=True)
 
-    if s3_urls:
+    if supabase_url:
         with col2:
             st.markdown(f"""
             <div style="
@@ -169,8 +169,8 @@ else:
                 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             ">
                 <h4 style="margin-top: 0;">🪣 S3 / POSTGRE</h4>
-                <p style="font-size: 12px; word-break: break-all;">{s3_urls}</p>
-                <a href="{s3_urls}" target="_blank" style="
+                <p style="font-size: 12px; word-break: break-all;">{supabase_url}</p>
+                <a href="{supabase_url}" target="_blank" style="
                     display: inline-block;
                     padding: 8px 16px;
                     background-color: white;
