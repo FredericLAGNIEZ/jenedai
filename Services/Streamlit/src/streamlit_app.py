@@ -33,6 +33,7 @@ else:
     github_url = os.getenv("GitHubURL")
     supabase_url = os.getenv("SupabaseURL")
     prefect_url = os.getenv("PrefectURL")
+    neon_url = os.getenv("NeonURL")
 
     # Parser les ServicesNames (format CSV)
     services_names = [s.strip() for s in services_names_str.split(",") if s.strip()]
@@ -209,7 +210,33 @@ else:
             </div>
             """, unsafe_allow_html=True)
 
-    if not any([github_url, supabase_url, prefect_url]):
-        st.info("❌ Aucune ressource externe configurée (GitHub, S3, PostgreSQL, Prefect)")
+    if neon_url := os.getenv("NeonURL"):
+        with col4:
+            st.markdown(f"""
+            <div style="
+                padding: 20px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                text-align: center;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            ">
+                <h4 style="margin-top: 0;">🗄️ NeonDB</h4>
+                <p style="font-size: 12px; word-break: break-all;">{neon_url}</p>
+                <a href="{neon_url}" target="_blank" style="
+                    display: inline-block;
+                    padding: 8px 16px;
+                    background-color: white;
+                    color: #764ba2;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-weight: bold;
+                    font-size: 12px;
+                ">Ouvrir →</a>
+            </div>
+            """, unsafe_allow_html=True)
+
+    if not any([github_url, supabase_url, prefect_url, neon_url]):
+        st.info("❌ Aucune ressource externe configurée (GitHub, S3, PostgreSQL, Prefect, NeonDB)")
 
     st.markdown("---")
