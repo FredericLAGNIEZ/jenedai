@@ -83,7 +83,7 @@ else:
     st.subheader("📦 Services Disponibles")
 
     if services_names:
-        cols = st.columns(4)
+        cols = st.columns(8)
         for idx, service in enumerate(services_names):
             col = cols[idx % 8]
             with col:
