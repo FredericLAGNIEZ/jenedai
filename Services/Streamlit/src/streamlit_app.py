@@ -85,7 +85,7 @@ else:
     if services_names:
         cols = st.columns(4)
         for idx, service in enumerate(services_names):
-            col = cols[idx % 4]
+            col = cols[idx % 8]
             with col:
                 hf_url = f"https://huggingface.co/spaces/{project_name}/{service}/tree/main"
                 hf_space_url = f"https://{project_name}-{service}.hf.space/"
@@ -169,7 +169,7 @@ else:
                 text-align: center;
                 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             ">
-                <h4 style="margin-top: 0;">🪣 S3 / POSTGRE</h4>
+                <h4 style="margin-top: 0;">🗄️ Supabase</h4>
                 <p style="font-size: 12px; word-break: break-all;">{supabase_url}</p>
                 <a href="{supabase_url}" target="_blank" style="
                     display: inline-block;
@@ -195,7 +195,7 @@ else:
                 text-align: center;
                 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             ">
-                <h4 style="margin-top: 0;">🗄️ Orchestrateur</h4>
+                <h4 style="margin-top: 0;">🪣 Prefect</h4>
                 <p style="font-size: 12px; word-break: break-all;">{prefect_url}</p>
                 <a href="{prefect_url}" target="_blank" style="
                     display: inline-block;
