@@ -49,14 +49,14 @@ else:
         except FileNotFoundError:
             # Fallback si icons.json n'existe pas
             return {
-                "Airflow": "https://airflow.apache.org/images/feature-image.png",
-                "MLflow": "https://mlflow.org/img/MLflow-logo.png",
-                "JupyterLab": "https://jupyter.org/assets/logos/rectanglelogo-greytext-orangedot-invertnull.svg",
-                "Streamlit": "https://streamlit.io/images/brand/streamlit-logo-secondary-coloredDark.png",
-                "n8n": "https://n8n.io/favicon.ico",
-                "Gradio": "https://www.gradio.app/assets/github-logo.svg",
-                "EvidentlyAI": "https://raw.githubusercontent.com/evidentlyai/evidently/master/docs/assets/logo.svg",
-                "ClickHouse": "https://clickhouse.com/_next/static/media/logo-full.ac8102d5.svg"
+                "Airflow": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apacheairflow/apacheairflow-original.svg",
+                "MLflow": "https://cdn.simpleicons.org/mlflow",
+                "JupyterLab": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jupyter/jupyter-original.svg",
+                "Streamlit": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/streamlit/streamlit-original.svg",
+                "n8n": "https://cdn.simpleicons.org/n8n",
+                "Gradio": "https://cdn.simpleicons.org/gradio",
+                "EvidentlyAI": "https://cdn.simpleicons.org/evidentlyai",
+                "ClickHouse": "https://cdn.simpleicons.org/clickhouse"
             }
 
     SERVICE_ICONS = load_service_icons()
