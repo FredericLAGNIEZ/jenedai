@@ -1,0 +1,337 @@
+[
+    {
+        "id": "19324f111076af83",
+        "type": "tab",
+        "label": "Download_apis",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d8d824f8b80f8a52",
+        "type": "inject",
+        "z": "19324f111076af83",
+        "name": "Start",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 90,
+        "y": 60,
+        "wires": [
+            [
+                "8de49defb0fc8801",
+                "b2041fb6ec26a3b6"
+            ]
+        ]
+    },
+    {
+        "id": "8de49defb0fc8801",
+        "type": "function",
+        "z": "19324f111076af83",
+        "name": "api_conso_electrique_agregats_30min_points_soutirage",
+        "func": "// Initialisation\nflow.set('allResults', []);\nflow.set('pageCount', 0);\nflow.set('NomFile', node.name+'.json');\n\nconst firstUrl = 'https://opendata.enedis.fr/data-fair/api/v1/datasets/conso-sup36-region/lines?page=1&format=json&size=5000';\nflow.set('nextUrl', firstUrl);\n\nmsg.url = firstUrl;\nnode.warn('Démarrage - URL: ' + firstUrl);\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 40,
+        "wires": [
+            [
+                "e55a44baff75abb8"
+            ]
+        ]
+    },
+    {
+        "id": "e55a44baff75abb8",
+        "type": "http request",
+        "z": "19324f111076af83",
+        "name": "Fetch Page",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 290,
+        "y": 160,
+        "wires": [
+            [
+                "37779faa15868db2"
+            ]
+        ]
+    },
+    {
+        "id": "37779faa15868db2",
+        "type": "function",
+        "z": "19324f111076af83",
+        "name": "Process & Check Next",
+        "func": "const data = msg.payload;\nconst max = 5 ;\n// Vérification erreur HTTP\nif (msg.statusCode !== 200) {\n    node.error('Erreur HTTP: ' + msg.statusCode);\n    return null;\n}\n\n// Accumulation des résultats\nconst currentResults = flow.get('allResults') || [];\nconst newResults = data.results || [];\nconst merged = currentResults.concat(newResults);\nflow.set('allResults', merged);\n\n// Compteur de pages\nconst pageCount = (flow.get('pageCount') || 0) + 1;\nflow.set('pageCount', pageCount);\n\nnode.warn(`Page ${pageCount} - ${newResults.length} résultats récupérés - Total accumulé: ${merged.length} / ${data.total}`);\n\n// Vérification pagination\nif (data.next && pageCount < max) {\n    // Il reste des pages => on continue\n    msg.url = data.next;\n    node.warn('Page suivante: ' + data.next);\n    return [msg, null]; // Output 1 : boucle\n} else {\n    // Toutes les pages récupérées => on sauvegarde\n    node.warn(`Pagination terminée ! Total: ${merged.length} résultats sur ${data.total}`);\n    \n    const fileName = flow.get('NomFile');\n    msg.payload = Buffer.from(JSON.stringify(merged, null, 2));\n    msg.filename = '/data/' + fileName;\n    \n    return [null, msg]; // Output 2 : sauvegarde\n}",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 160,
+        "wires": [
+            [
+                "e55a44baff75abb8"
+            ],
+            [
+                "906665dfadfea120"
+            ]
+        ]
+    },
+    {
+        "id": "906665dfadfea120",
+        "type": "file",
+        "z": "19324f111076af83",
+        "name": "Save File",
+        "filename": "filename",
+        "filenameType": "msg",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 760,
+        "y": 100,
+        "wires": [
+            [
+                "38da367522bb4eb7"
+            ]
+        ]
+    },
+    {
+        "id": "7dfefa7eb3938d4a",
+        "type": "exec",
+        "z": "19324f111076af83",
+        "command": "",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "winHide": false,
+        "oldrc": false,
+        "name": "Upload to MinIO",
+        "x": 1120,
+        "y": 100,
+        "wires": [
+            [
+                "debug_success"
+            ],
+            [
+                "debug_error"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "38da367522bb4eb7",
+        "type": "function",
+        "z": "19324f111076af83",
+        "name": "Build MinIO Command",
+        "func": "const filePath = msg.filename;\n// filePath = '/data/nom_fichier.json'\n\nconst fileName = filePath.split('/').pop();\n// fileName = 'nom_fichier.json'\n\nconst minioDest = 'local/datalake/' + fileName;\n\nmsg.payload = `mc alias set local http://minio:9000 admin password && mc cp ${filePath} ${minioDest}`;\n\nnode.warn('Commande MinIO: ' + msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 40,
+        "wires": [
+            [
+                "7dfefa7eb3938d4a"
+            ]
+        ]
+    },
+    {
+        "id": "b2041fb6ec26a3b6",
+        "type": "function",
+        "z": "19324f111076af83",
+        "name": "Init Download Parquet",
+        "func": "const fileName = 'calendrier_vacances_scolaires_france.parquet';\nconst url = 'https://object.files.data.gouv.fr/hydra-parquet/hydra-parquet/c3781037-dffb-4789-9af9-15a955336771.parquet';\n\nflow.set('fileName', fileName);\nflow.set('filePath', '/data/' + fileName);\n\nmsg.url = url;\nnode.warn('Démarrage téléchargement: ' + url);\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 340,
+        "wires": [
+            [
+                "c3f5a1d2e4b67890"
+            ]
+        ]
+    },
+    {
+        "id": "c3f5a1d2e4b67890",
+        "type": "http request",
+        "z": "19324f111076af83",
+        "name": "Download Parquet",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 490,
+        "y": 400,
+        "wires": [
+            [
+                "d4e6b2c1f5a78901"
+            ]
+        ]
+    },
+    {
+        "id": "d4e6b2c1f5a78901",
+        "type": "function",
+        "z": "19324f111076af83",
+        "name": "Check HTTP Response",
+        "func": "if (msg.statusCode !== 200) {\n    node.error('Erreur HTTP: ' + msg.statusCode, msg);\n    return null;\n}\n\nconst filePath = flow.get('filePath');\nconst fileName = flow.get('fileName');\n\nnode.warn('Téléchargement OK - Taille: ' + msg.payload.length + ' bytes');\n\nmsg.filename = filePath;\nmsg.fileName = fileName;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 300,
+        "wires": [
+            [
+                "e5f7c3d2a6b89012"
+            ]
+        ]
+    },
+    {
+        "id": "e5f7c3d2a6b89012",
+        "type": "file",
+        "z": "19324f111076af83",
+        "name": "Save Parquet",
+        "filename": "filename",
+        "filenameType": "msg",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 840,
+        "y": 420,
+        "wires": [
+            [
+                "f6a8d4e3b7c90123"
+            ]
+        ]
+    },
+    {
+        "id": "f6a8d4e3b7c90123",
+        "type": "function",
+        "z": "19324f111076af83",
+        "name": "Build MinIO Command",
+        "func": "const filePath = msg.filename;\n// filePath = '/data/nom_fichier.parquet'\n\nconst fileName = filePath.split('/').pop();\n// fileName = 'nom_fichier.parquet'\n\nconst minioDest = 'local/datalake/' + fileName;\n\nmsg.payload = `mc alias set local http://minio:9000 admin password && mc cp ${filePath} ${minioDest}`;\n\nnode.warn('Commande MinIO: ' + msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 260,
+        "wires": [
+            [
+                "a1b2c3d4e5f60123"
+            ]
+        ]
+    },
+    {
+        "id": "debug_success",
+        "type": "debug",
+        "z": "19324f111076af83",
+        "name": "Upload OK",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 1310,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "debug_error",
+        "type": "debug",
+        "z": "19324f111076af83",
+        "name": "Upload ERROR",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 1220,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "debug_timeout",
+        "type": "debug",
+        "z": "19324f111076af83",
+        "name": "Upload TIMEOUT",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 1290,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "a1b2c3d4e5f60123",
+        "type": "exec",
+        "z": "19324f111076af83",
+        "command": "",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "60",
+        "winHide": false,
+        "oldrc": false,
+        "name": "Upload to MinIO",
+        "x": 1120,
+        "y": 380,
+        "wires": [
+            [
+                "debug_success"
+            ],
+            [
+                "debug_error"
+            ],
+            [
+                "debug_timeout"
+            ]
+        ]
+    }
+]
