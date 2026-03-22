@@ -194,12 +194,13 @@ else:
 
     external_sources = []
     for cfg in EXTERNAL_SERVICES_CONFIG.get("external_services", []):
-        url = os.getenv(cfg.get("env_key", ""), "")
+        env_url = os.getenv(cfg.get("env_key", ""), "")
+        url = env_url or cfg.get("url", "")
         if url:
             external_sources.append({
                 "name": cfg.get("name", ""),
                 "url": url,
-                "icon": cfg.get("icon", ""),
+                "icon": cfg.get("icon", "https://cdn.simpleicons.org/link"),
                 "description": cfg.get("description", "")
             })
 
@@ -212,26 +213,28 @@ else:
             with col:
                 st.markdown(f"""
                 <div style="
-                    padding: 20px;
-                    border-radius: 12px;
+                    padding: 14px;
+                    border-radius: 10px;
                     background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
                     color: white;
                     text-align: center;
                     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 ">
-                    <img src="{service['icon']}" alt="{service['name']}" style="width: 30px; height: 30px; margin-bottom: 8px;" />
-                    <h4 style="margin-top: 0;">{service['name']}</h4>
-                    <p style="font-size: 12px; word-break: break-all;">{service['url']}</p>
-                    <a href="{service['url']}" target="_blank" style="
-                        display: inline-block;
-                        padding: 8px 16px;
+                    <img src="{service['icon']}" alt="Icône {service['name']}" style="width: 24px; height: 24px; margin-bottom: 6px;" />
+                    <h5 style="margin: 6px 0 4px; font-size: 14px;">{service['name']}</h5>
+                    <p style="font-size: 11px; word-break: break-all; margin-bottom: 8px;">{service['description']}</p>
+                    <a href="{service['url']}" target="_blank" role="button" aria-label="Ouvrir {service['name']}" style="
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 6px 12px;
                         background-color: white;
                         color: #f5576c;
                         text-decoration: none;
                         border-radius: 6px;
-                        font-weight: bold;
-                        font-size: 12px;
-                    ">Ouvrir →</a>
+                        font-weight: 700;
+                        font-size: 11px;
+                    ">Ouvrir ↗</a>
                 </div>
                 """, unsafe_allow_html=True)
 
