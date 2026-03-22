@@ -41,20 +41,13 @@ else:
     # Charger les icones et les config JSON de service/external/api
     @st.cache_data
     def load_json_file(filename, default=None):
-        # .config dans Services/Streamlit
-        config_dir = os.path.join(parent_dir, ".config")
-        path = os.path.join(config_dir, filename)
+        # .config dans le même dossier que streamlit_app.py (Services/Streamlit/src/.config)
+        config_path = os.path.join(script_dir, ".config", filename)
         try:
-            with open(path, 'r', encoding='utf-8') as f:
+            with open(config_path, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except FileNotFoundError:
-            # Ancien comportement : recherche à la racine du projet pour rétrocompatibilité
-            root_path = os.path.join(os.path.dirname(parent_dir), ".config", filename)
-            try:
-                with open(root_path, 'r', encoding='utf-8') as f:
-                    return json.load(f)
-            except FileNotFoundError:
-                return default if default is not None else {}
+            return default if default is not None else {}
 
     SERVICE_ICONS = load_json_file("icons.json", {
         "Airflow": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apacheairflow/apacheairflow-original.svg",
