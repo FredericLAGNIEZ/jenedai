@@ -55,8 +55,9 @@ else:
                 "Streamlit": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/streamlit/streamlit-original.svg",
                 "n8n": "https://cdn.simpleicons.org/n8n",
                 "Gradio": "https://cdn.simpleicons.org/gradio",
-                "EvidentlyAI": "https://cdn.simpleicons.org/evidentlyai",
-                "ClickHouse": "https://cdn.simpleicons.org/clickhouse"
+                "EvidentlyAI": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/bar-chart-fill.svg",
+                "ClickHouse": "https://cdn.simpleicons.org/clickhouse",
+                "Node-RED": "https://cdn.simpleicons.org/nodered/8F0000"
             }
 
     SERVICE_ICONS = load_service_icons()

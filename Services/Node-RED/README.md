@@ -1,6 +1,7 @@
-title: Node RED
-emoji: 👀
-colorFrom: purple
-colorTo: green
+---
+title: Node-RED
 sdk: docker
-pinned: false
+emoji: 🚀
+colorFrom: red
+colorTo: indigo
+---
