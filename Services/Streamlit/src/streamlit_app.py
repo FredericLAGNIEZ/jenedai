@@ -104,11 +104,14 @@ else:
                 name = name.strip()
                 url = url.strip()
                 if name and url:
+                    config_entry = next((a for a in APIS_CONFIG.get("apis", []) if a.get("name") == name), None)
+                    icon = (config_entry.get("icon") if config_entry and config_entry.get("icon") else presets.get(name, icon_default))
+                    description = (config_entry.get("description") if config_entry and config_entry.get("description") else "API depuis .env")
                     apis.append({
                         "name": name,
                         "url": url,
-                        "icon": presets.get(name, icon_default),
-                        "description": "API depuis .env"
+                        "icon": icon,
+                        "description": description
                     })
 
         return apis
@@ -255,19 +258,43 @@ else:
         st.info("ℹ️ Aucune API configurée via .env ou apis_config.json")
     else:
         for api in api_items:
+            icon = api.get('icon', 'https://cdn.simpleicons.org/api')
+            name = api.get('name', '')
+            url = api.get('url', '')
+            desc = api.get('description', '')
             st.markdown(f"""
             <div style="
-                padding: 15px;
-                border-radius: 12px;
-                background: #f0f2f6;
-                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                padding: 10px;
+                border-radius: 10px;
+                background: #ffffff;
+                border: 1px solid #d9d9d9;
+                margin-bottom: 8px;
             ">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <img src="{api.get('icon', '')}" alt="{api.get('name', '')}" style="width: 24px; height: 24px;" />
-                    <strong>{api.get('name', '')}</strong>
+                <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                    <img src="{icon}" alt="Icône de {name}" aria-hidden="false" style="width: 20px; height: 20px;" />
+                    <div style="min-width: 0;">
+                        <div style="font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{name}</div>
+                        <div style="font-size: 11px; color: #444; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{desc}</div>
+                    </div>
                 </div>
-                <div style="font-size: 12px; margin-top: 8px;">{api.get('description', '')}</div>
-                <div style="font-size: 11px; color: #333; margin-top: 4px;">{api.get('url', '')}</div>
+                <a href="{url}" target="_blank" role="button" aria-label="Ouvrir {name}" style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 4px 10px;
+                    background: #0078d4;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-size: 11px;
+                    font-weight: 700;
+                ">Open
+                    <span aria-hidden="true">↗</span>
+                </a>
             </div>
             """, unsafe_allow_html=True)
 
