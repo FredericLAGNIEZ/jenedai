@@ -1,5 +1,4 @@
 #!/bin/bash
-JUPYTER_TOKEN="${JUPYTER_TOKEN:=huggingface}"
 
 NOTEBOOK_DIR="/data"
 
