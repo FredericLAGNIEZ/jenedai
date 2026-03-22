@@ -27,15 +27,15 @@ else:
 
     # Récupérer les variables d'environnement depuis le .env
     load_dotenv(env_path, override=True)
-    project_name = os.getenv("ProjectName")
-    environment = os.getenv("Environment")
-    services_names_str = os.getenv("ServicesNames")
-    github_url = os.getenv("GitHubURL")
-    supabase_url = os.getenv("SupabaseURL")
-    prefect_url = os.getenv("PrefectURL")
-    neon_url = os.getenv("NeonURL")
+    project_name = os.getenv("ProjectName", "N/A")
+    environment = os.getenv("Environment", "N/A")
+    services_names_str = os.getenv("ServicesNames", "")
+    github_url = os.getenv("GitHubURL", "")
+    supabase_url = os.getenv("SupabaseURL", "")
+    prefect_url = os.getenv("PrefectURL", "")
+    neon_url = os.getenv("NeonURL", "")
 
-    # Parser les ServicesNames (format CSV)
+    # Parser les ServicesNames (format CSV) et conserver uniquement les services renseignés
     services_names = [s.strip() for s in services_names_str.split(",") if s.strip()]
 
     # Charger les icones depuis icons.json
@@ -82,10 +82,13 @@ else:
     # Section Services avec icones officielles
     st.subheader("📦 Services Disponibles")
 
-    if services_names:
-        cols = st.columns(8)
+    if not services_names:
+        st.info("ℹ️ Aucun service configuré dans ServicesNames du .env")
+    else:
+        cols_count = min(8, max(1, len(services_names)))
+        cols = st.columns(cols_count)
         for idx, service in enumerate(services_names):
-            col = cols[idx % 8]
+            col = cols[idx % cols_count]
             with col:
                 hf_url = f"https://huggingface.co/spaces/{project_name}/{service}/tree/main"
                 hf_space_url = f"https://{project_name}-{service}.hf.space/"
