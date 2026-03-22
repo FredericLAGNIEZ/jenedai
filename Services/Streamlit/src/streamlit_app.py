@@ -38,29 +38,39 @@ else:
     # Parser les ServicesNames (format CSV) et conserver uniquement les services renseignés
     services_names = [s.strip() for s in services_names_str.split(",") if s.strip()]
 
-    # Charger les icones depuis icons.json
+    # Charger les icones et les config JSON de service/external/api
     @st.cache_data
-    def load_service_icons():
-        """Charger les icones depuis le fichier icons.json"""
-        icons_path = os.path.join(os.path.dirname(parent_dir), "icons.json")
+    def load_json_file(filename, default=None):
+        # .config dans Services/Streamlit
+        config_dir = os.path.join(parent_dir, ".config")
+        path = os.path.join(config_dir, filename)
         try:
-            with open(icons_path, 'r') as f:
+            with open(path, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except FileNotFoundError:
-            # Fallback si icons.json n'existe pas
-            return {
-                "Airflow": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apacheairflow/apacheairflow-original.svg",
-                "MLflow": "https://cdn.simpleicons.org/mlflow",
-                "JupyterLab": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jupyter/jupyter-original.svg",
-                "Streamlit": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/streamlit/streamlit-original.svg",
-                "n8n": "https://cdn.simpleicons.org/n8n",
-                "Gradio": "https://cdn.simpleicons.org/gradio",
-                "EvidentlyAI": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/bar-chart-fill.svg",
-                "ClickHouse": "https://cdn.simpleicons.org/clickhouse",
-                "Node-RED": "https://cdn.simpleicons.org/nodered/8F0000"
-            }
+            # Ancien comportement : recherche à la racine du projet pour rétrocompatibilité
+            root_path = os.path.join(os.path.dirname(parent_dir), ".config", filename)
+            try:
+                with open(root_path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except FileNotFoundError:
+                return default if default is not None else {}
 
-    SERVICE_ICONS = load_service_icons()
+    SERVICE_ICONS = load_json_file("icons.json", {
+        "Airflow": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apacheairflow/apacheairflow-original.svg",
+        "MLflow": "https://cdn.simpleicons.org/mlflow",
+        "JupyterLab": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jupyter/jupyter-original.svg",
+        "Streamlit": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/streamlit/streamlit-original.svg",
+        "n8n": "https://cdn.simpleicons.org/n8n",
+        "Gradio": "https://cdn.simpleicons.org/gradio",
+        "EvidentlyAI": "https://cdn.simpleicons.org/evidentlyai",
+        "ClickHouse": "https://cdn.simpleicons.org/clickhouse",
+        "Node-RED": "https://cdn.simpleicons.org/nodered"
+    })
+
+    SERVICES_CONFIG = load_json_file("services_config.json", {"services": []})
+    EXTERNAL_SERVICES_CONFIG = load_json_file("external_services_config.json", {"external_services": []})
+    APIS_CONFIG = load_json_file("apis_config.json", {"apis": []})
 
     # En-tête
     st.title("🚀 Infrastructure Dashboard")
@@ -89,13 +99,14 @@ else:
         cols_count = min(8, max(1, len(services_names)))
         cols = st.columns(cols_count)
         for idx, service in enumerate(services_names):
+            service_cfg = next((s for s in SERVICES_CONFIG.get("services", []) if s.get("name") == service), {})
+            display_name = service_cfg.get("display_name", service)
+            icon_url = service_cfg.get("icon", SERVICE_ICONS.get(service, ""))
+            hf_url = service_cfg.get("repo_path_template", "https://huggingface.co/spaces/{project}/{service}/tree/main").format(project=project_name, service=service)
+            hf_space_url = service_cfg.get("space_url_template", "https://{project}-{service}.hf.space/").format(project=project_name, service=service)
+
             col = cols[idx % cols_count]
             with col:
-                hf_url = f"https://huggingface.co/spaces/{project_name}/{service}/tree/main"
-                hf_space_url = f"https://{project_name}-{service}.hf.space/"
-                icon_url = SERVICE_ICONS.get(service, "")
-                
-                # Bouton avec icone officielle
                 st.markdown(f"""
                 <div style="
                     display: flex;
@@ -113,7 +124,7 @@ else:
                     <div style="width: 60px; height: 60px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center;">
                         <img src="{icon_url}" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: brightness(0) invert(1);">
                     </div>
-                    <h4 style="margin: 10px 0; font-size: 16px;">{service}</h4>
+                    <h4 style="margin: 10px 0; font-size: 16px;">{display_name}</h4>
                     <p style="margin: 5px 0; font-size: 12px; opacity: 0.9;"><a href="{hf_url}" target="_blank" style="color: white; text-decoration: underline;">HuggingFace Space</a></p>
                     <a href="{hf_space_url}" target="_blank" style="
                         display: inline-block;
@@ -134,113 +145,72 @@ else:
     # Section Ressources Externes
     st.subheader("🔐 Ressources Externes")
 
-    col1, col2, col3, col4 = st.columns(4)
+    external_sources = []
+    for cfg in EXTERNAL_SERVICES_CONFIG.get("external_services", []):
+        url = os.getenv(cfg.get("env_key", ""), "")
+        if url:
+            external_sources.append({
+                "name": cfg.get("name", ""),
+                "url": url,
+                "icon": cfg.get("icon", ""),
+                "description": cfg.get("description", "")
+            })
 
-    if github_url:
-        with col1:
+    if not external_sources:
+        st.info("❌ Aucune ressource externe configurée dans .env ou external_services_config.json")
+    else:
+        cols = st.columns(min(4, len(external_sources)))
+        for idx, service in enumerate(external_sources):
+            col = cols[idx % len(cols)]
+            with col:
+                st.markdown(f"""
+                <div style="
+                    padding: 20px;
+                    border-radius: 12px;
+                    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                    color: white;
+                    text-align: center;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                ">
+                    <img src="{service['icon']}" alt="{service['name']}" style="width: 30px; height: 30px; margin-bottom: 8px;" />
+                    <h4 style="margin-top: 0;">{service['name']}</h4>
+                    <p style="font-size: 12px; word-break: break-all;">{service['url']}</p>
+                    <a href="{service['url']}" target="_blank" style="
+                        display: inline-block;
+                        padding: 8px 16px;
+                        background-color: white;
+                        color: #f5576c;
+                        text-decoration: none;
+                        border-radius: 6px;
+                        font-weight: bold;
+                        font-size: 12px;
+                    ">Ouvrir →</a>
+                </div>
+                """, unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # Section APIs (fichier de config apis_config.json)
+    st.subheader("🧩 APIs disponibles")
+    api_items = APIS_CONFIG.get("apis", [])
+    if not api_items:
+        st.info("ℹ️ Aucune API configurée dans apis_config.json")
+    else:
+        for api in api_items:
             st.markdown(f"""
             <div style="
-                padding: 20px;
+                padding: 15px;
                 border-radius: 12px;
-                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-                color: white;
-                text-align: center;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                background: #f0f2f6;
+                margin-bottom: 10px;
             ">
-                <h4 style="margin-top: 0;">🐙 GitHub</h4>
-                <p style="font-size: 12px; word-break: break-all;">{github_url}</p>
-                <a href="{github_url}" target="_blank" style="
-                    display: inline-block;
-                    padding: 8px 16px;
-                    background-color: white;
-                    color: #f5576c;
-                    text-decoration: none;
-                    border-radius: 6px;
-                    font-weight: bold;
-                    font-size: 12px;
-                ">Ouvrir →</a>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <img src="{api.get('icon', '')}" alt="{api.get('name', '')}" style="width: 24px; height: 24px;" />
+                    <strong>{api.get('name', '')}</strong>
+                </div>
+                <div style="font-size: 12px; margin-top: 8px;">{api.get('description', '')}</div>
+                <div style="font-size: 11px; color: #333; margin-top: 4px;">{api.get('base_url', '')}</div>
             </div>
             """, unsafe_allow_html=True)
-
-    if supabase_url:
-        with col2:
-            st.markdown(f"""
-            <div style="
-                padding: 20px;
-                border-radius: 12px;
-                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-                color: white;
-                text-align: center;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            ">
-                <h4 style="margin-top: 0;">🗄️ Supabase</h4>
-                <p style="font-size: 12px; word-break: break-all;">{supabase_url}</p>
-                <a href="{supabase_url}" target="_blank" style="
-                    display: inline-block;
-                    padding: 8px 16px;
-                    background-color: white;
-                    color: #00f2fe;
-                    text-decoration: none;
-                    border-radius: 6px;
-                    font-weight: bold;
-                    font-size: 12px;
-                ">Ouvrir →</a>
-            </div>
-            """, unsafe_allow_html=True)
-
-    if prefect_url:
-        with col3:
-            st.markdown(f"""
-            <div style="
-                padding: 20px;
-                border-radius: 12px;
-                background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-                color: white;
-                text-align: center;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            ">
-                <h4 style="margin-top: 0;">🪣 Prefect</h4>
-                <p style="font-size: 12px; word-break: break-all;">{prefect_url}</p>
-                <a href="{prefect_url}" target="_blank" style="
-                    display: inline-block;
-                    padding: 8px 16px;
-                    background-color: white;
-                    color: #38f9d7;
-                    text-decoration: none;
-                    border-radius: 6px;
-                    font-weight: bold;
-                    font-size: 12px;
-                ">Ouvrir →</a>
-            </div>
-            """, unsafe_allow_html=True)
-
-    if neon_url := os.getenv("NeonURL"):
-        with col4:
-            st.markdown(f"""
-            <div style="
-                padding: 20px;
-                border-radius: 12px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                text-align: center;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            ">
-                <h4 style="margin-top: 0;">🗄️ NeonDB</h4>
-                <p style="font-size: 12px; word-break: break-all;">{neon_url}</p>
-                <a href="{neon_url}" target="_blank" style="
-                    display: inline-block;
-                    padding: 8px 16px;
-                    background-color: white;
-                    color: #764ba2;
-                    text-decoration: none;
-                    border-radius: 6px;
-                    font-weight: bold;
-                    font-size: 12px;
-                ">Ouvrir →</a>
-            </div>
-            """, unsafe_allow_html=True)
-
-    if not any([github_url, supabase_url, prefect_url, neon_url]):
-        st.info("❌ Aucune ressource externe configurée (GitHub, S3, PostgreSQL, Prefect, NeonDB)")
 
     st.markdown("---")

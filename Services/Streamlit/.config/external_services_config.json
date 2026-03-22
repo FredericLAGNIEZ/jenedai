@@ -1,0 +1,28 @@
+{
+  "external_services": [
+    {
+      "name": "GitHub",
+      "env_key": "GitHubURL",
+      "icon": "https://cdn.simpleicons.org/github",
+      "description": "Référentiel source"
+    },
+    {
+      "name": "Supabase",
+      "env_key": "SupabaseURL",
+      "icon": "https://cdn.simpleicons.org/supabase",
+      "description": "Base de données + Auth"
+    },
+    {
+      "name": "Prefect",
+      "env_key": "PrefectURL",
+      "icon": "https://cdn.simpleicons.org/prefect",
+      "description": "Orchestration de workflows"
+    },
+    {
+      "name": "NeonDB",
+      "env_key": "NeonURL",
+      "icon": "https://cdn.simpleicons.org/neon",
+      "description": "PostgreSQL serverless"
+    }
+  ]
+}

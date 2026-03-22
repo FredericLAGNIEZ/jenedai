@@ -1,0 +1,28 @@
+{
+  "apis": [
+    {
+      "name": "Airflow API",
+      "base_url": "http://localhost:8080/api/v1",
+      "icon": "https://cdn.simpleicons.org/apacheairflow",
+      "description": "API d'orchestration Airflow"
+    },
+    {
+      "name": "MLflow Tracking API",
+      "base_url": "http://localhost:5000/api/2.0",
+      "icon": "https://cdn.simpleicons.org/mlflow",
+      "description": "API de suivi MLflow"
+    },
+    {
+      "name": "Supabase REST API",
+      "base_url": "https://your-project-id.supabase.co/rest/v1",
+      "icon": "https://cdn.simpleicons.org/supabase",
+      "description": "API REST Supabase"
+    },
+    {
+      "name": "Prefect GraphQL",
+      "base_url": "https://api.prefect.cloud/graphql",
+      "icon": "https://cdn.simpleicons.org/prefect",
+      "description": "API de contrôle Prefect"
+    }
+  ]
+}
