@@ -72,6 +72,50 @@ else:
     EXTERNAL_SERVICES_CONFIG = load_json_file("external_services_config.json", {"external_services": []})
     APIS_CONFIG = load_json_file("apis_config.json", {"apis": []})
 
+    def load_apis_from_env(env_file_path):
+        if not os.path.exists(env_file_path):
+            return []
+
+        apis = []
+        icon_default = "https://cdn.simpleicons.org/api"
+        presets = {
+            "Enedis": "https://cdn.simpleicons.org/graphqL",  # icone générique
+            "Vacances scolaires": "https://cdn.simpleicons.org/book",
+            "Météo": "https://cdn.simpleicons.org/weather",
+            "Localisation": "https://cdn.simpleicons.org/map"
+        }
+
+        with open(env_file_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        in_apis = False
+        for line in lines:
+            raw = line.strip()
+            if not raw:
+                continue
+            if raw.startswith("#APIs"):
+                in_apis = True
+                continue
+            if in_apis and raw.startswith("#"):
+                # fin de section APIs s'il y a une autre section
+                break
+            if in_apis and "=" in raw:
+                name, url = raw.split("=", 1)
+                name = name.strip()
+                url = url.strip()
+                if name and url:
+                    apis.append({
+                        "name": name,
+                        "url": url,
+                        "icon": presets.get(name, icon_default),
+                        "description": "API depuis .env"
+                    })
+
+        return apis
+
+    ENV_APIS = load_apis_from_env(env_path)
+
+
     # En-tête
     st.title("🚀 Infrastructure Dashboard")
     st.markdown(f"**Project:** {project_name} | **Environment:** {environment}")
@@ -192,9 +236,23 @@ else:
 
     # Section APIs (fichier de config apis_config.json)
     st.subheader("🧩 APIs disponibles")
-    api_items = APIS_CONFIG.get("apis", [])
+    api_items = ENV_APIS if ENV_APIS else []
     if not api_items:
-        st.info("ℹ️ Aucune API configurée dans apis_config.json")
+        for api in APIS_CONFIG.get("apis", []):
+            env_key = api.get("env_key")
+            api_url = os.getenv(env_key, "") if env_key else ""
+            if not api_url:
+                api_url = api.get("base_url", "")
+            if api_url:
+                api_items.append({
+                    "name": api.get("name", ""),
+                    "url": api_url,
+                    "icon": api.get("icon", ""),
+                    "description": api.get("description", "")
+                })
+
+    if not api_items:
+        st.info("ℹ️ Aucune API configurée via .env ou apis_config.json")
     else:
         for api in api_items:
             st.markdown(f"""
@@ -209,7 +267,7 @@ else:
                     <strong>{api.get('name', '')}</strong>
                 </div>
                 <div style="font-size: 12px; margin-top: 8px;">{api.get('description', '')}</div>
-                <div style="font-size: 11px; color: #333; margin-top: 4px;">{api.get('base_url', '')}</div>
+                <div style="font-size: 11px; color: #333; margin-top: 4px;">{api.get('url', '')}</div>
             </div>
             """, unsafe_allow_html=True)
 
