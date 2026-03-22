@@ -2,19 +2,27 @@
   "apis": [
     {
       "name": "Enedis",
-      "url": "https://opendata.enedis.fr/datasets/conso-sup36-region/table?sort=-horodate"
+      "url": "https://opendata.enedis.fr/datasets/conso-sup36-region/table?sort=-horodate",
+      "icon": "https://cdn.simpleicons.org/enedis",
+      "description": "API de données de consommation Enedis"
     },
     {
       "name": "Vacances scolaires",
-      "url": "https://pypi.org/project/vacances-scolaires-france/"
+      "url": "https://pypi.org/project/vacances-scolaires-france/",
+      "icon": "https://cdn.simpleicons.org/calendar",
+      "description": "API ou doc des vacances scolaires"
     },
     {
       "name": "Météo",
-      "url": "https://open-meteo.com/en/docs/meteofrance-api"
+      "url": "https://open-meteo.com/en/docs/meteofrance-api",
+      "icon": "https://cdn.simpleicons.org/weather",
+      "description": "API météo Open-Meteo"
     },
     {
       "name": "Localisation",
-      "url": "https://geo.api.gouv.fr/"
+      "url": "https://geo.api.gouv.fr/",
+      "icon": "https://cdn.simpleicons.org/map",
+      "description": "API de géolocalisation gouvernementale"
     }
   ]
 }
