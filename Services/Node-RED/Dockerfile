@@ -11,9 +11,7 @@ ARG NODE_RED_CREDENTIAL_SECRET
 #RUN npm install \
 #    node-red-contrib-browser-utils
 
-USER root
-#RUN mkdir /data && chown user:user /data
-COPY workspace/ /data/
+COPY data/ .
 
 # Exposer port
 ENV PORT=7860
