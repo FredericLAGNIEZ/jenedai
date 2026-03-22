@@ -11,8 +11,9 @@ ARG NODE_RED_CREDENTIAL_SECRET
 #RUN npm install \
 #    node-red-contrib-browser-utils
 
-# Copier flows si tu en as
-# COPY flows.json /data/flows.json
+USER root
+#RUN mkdir /data && chown user:user /data
+COPY workspace/ /data/
 
 # Exposer port
 ENV PORT=7860
