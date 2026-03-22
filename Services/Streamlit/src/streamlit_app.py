@@ -49,18 +49,6 @@ else:
         except FileNotFoundError:
             return default if default is not None else {}
 
-    SERVICE_ICONS = load_json_file("icons.json", {
-        "Airflow": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apacheairflow/apacheairflow-original.svg",
-        "MLflow": "https://cdn.simpleicons.org/mlflow",
-        "JupyterLab": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jupyter/jupyter-original.svg",
-        "Streamlit": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/streamlit/streamlit-original.svg",
-        "n8n": "https://cdn.simpleicons.org/n8n",
-        "Gradio": "https://cdn.simpleicons.org/gradio",
-        "EvidentlyAI": "https://cdn.simpleicons.org/evidentlyai",
-        "ClickHouse": "https://cdn.simpleicons.org/clickhouse",
-        "Node-RED": "https://cdn.simpleicons.org/nodered"
-    })
-
     SERVICES_CONFIG = load_json_file("services_config.json", {"services": []})
     EXTERNAL_SERVICES_CONFIG = load_json_file("external_services_config.json", {"external_services": []})
     APIS_CONFIG = load_json_file("apis_config.json", {"apis": []})
@@ -71,12 +59,6 @@ else:
 
         apis = []
         icon_default = "https://cdn.simpleicons.org/api"
-        presets = {
-            "Enedis": "https://cdn.simpleicons.org/graphqL",  # icone générique
-            "Vacances scolaires": "https://cdn.simpleicons.org/book",
-            "Météo": "https://cdn.simpleicons.org/weather",
-            "Localisation": "https://cdn.simpleicons.org/map"
-        }
 
         with open(env_file_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
@@ -90,7 +72,6 @@ else:
                 in_apis = True
                 continue
             if in_apis and raw.startswith("#"):
-                # fin de section APIs s'il y a une autre section
                 break
             if in_apis and "=" in raw:
                 name, url = raw.split("=", 1)
@@ -98,8 +79,10 @@ else:
                 url = url.strip()
                 if name and url:
                     config_entry = next((a for a in APIS_CONFIG.get("apis", []) if a.get("name") == name), None)
-                    icon = (config_entry.get("icon") if config_entry and config_entry.get("icon") else presets.get(name, icon_default))
-                    description = (config_entry.get("description") if config_entry and config_entry.get("description") else "API depuis .env")
+                    icon = (config_entry.get("icon") if config_entry and config_entry.get("icon") 
+                            else icon_default)
+                    description = (config_entry.get("description") if config_entry and config_entry.get("description") 
+                                   else "API depuis .env")
                     apis.append({
                         "name": name,
                         "url": url,
@@ -141,7 +124,7 @@ else:
         for idx, service in enumerate(services_names):
             service_cfg = next((s for s in SERVICES_CONFIG.get("services", []) if s.get("name") == service), {})
             display_name = service_cfg.get("display_name", service)
-            icon_url = service_cfg.get("icon", SERVICE_ICONS.get(service, ""))
+            icon_url = service_cfg.get("icon", "")
             hf_url = service_cfg.get("repo_path_template", "https://huggingface.co/spaces/{project}/{service}/tree/main").format(project=project_name, service=service)
             hf_space_url = service_cfg.get("space_url_template", "https://{project}-{service}.hf.space/").format(project=project_name, service=service)
 
