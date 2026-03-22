@@ -21,5 +21,14 @@ ARG AWS_REGION
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_SECRET_ACCESS_KEY
 ARG MLFLOW_S3_ENDPOINT_URL
+ARG MLFLOW_REGISTRY_URI
+ARG MLFLOW_TRACKING_URI
+ARG MLFLOW_POSTGRES_URI
+ARG MLFLOW_ENABLE_TRACING=true
 
-CMD mlflow server --host 0.0.0.0 --port 7860 --backend-store-uri $MLFLOW_POSTGRES_URI --default-artifact-root "s3://mlflow-artifacts/" --allowed-hosts jenedai-mlflow.hf.space
+CMD mlflow server --host 0.0.0.0 \
+  --port 7860 \
+  --backend-store-uri $MLFLOW_POSTGRES_URI \
+  --default-artifact-root "s3://mlflow-artifacts/" \
+  --allowed-hosts "*" \
+  --cors-allowed-origins "*"
