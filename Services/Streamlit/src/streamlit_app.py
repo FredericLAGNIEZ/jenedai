@@ -188,7 +188,6 @@ else:
             st.markdown(f"""
             <div style="
                 display: flex;
-                flex-direction: column;
                 gap: 10px;
                 padding: 14px;
                 border-radius: 12px;
