@@ -247,33 +247,35 @@ else:
                 align-items: center;
                 justify-content: space-between;
                 gap: 10px;
-                padding: 10px;
-                border-radius: 10px;
-                background: #ffffff;
-                border: 1px solid #d9d9d9;
-                margin-bottom: 8px;
-            ">
+                padding: 14px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, #43c6ac 0%, #191654 100%);
+                color: white;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                margin-bottom: 10px;
+                transition: transform 0.2s;
+            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
                 <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                    <img src="{icon}" alt="Icône de {name}" aria-hidden="false" style="width: 20px; height: 20px;" />
+                    <img src="{icon}" alt="Icône de {name}" aria-hidden="false" style="width: 24px; height: 24px;" />
                     <div style="min-width: 0;">
                         <div style="font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{name}</div>
-                        <div style="font-size: 11px; color: #444; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{desc}</div>
+                        <div style="font-size: 11px; opacity: 0.9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{desc}</div>
+                        <div style="font-size: 10px; opacity: 0.8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{url}</div>
                     </div>
                 </div>
                 <a href="{url}" target="_blank" role="button" aria-label="Ouvrir {name}" style="
                     display: inline-flex;
                     align-items: center;
                     gap: 6px;
-                    padding: 4px 10px;
-                    background: #0078d4;
-                    color: white;
+                    padding: 8px 14px;
+                    background: white;
+                    color: #191654;
                     text-decoration: none;
-                    border-radius: 6px;
-                    font-size: 11px;
+                    border-radius: 8px;
+                    font-size: 12px;
                     font-weight: 700;
-                ">Open
-                    <span aria-hidden="true">↗</span>
-                </a>
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+                ">Ouvrir ↗</a>
             </div>
             """, unsafe_allow_html=True)
 
