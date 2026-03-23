@@ -49,46 +49,8 @@ else:
     EXTERNAL_SERVICES_CONFIG = load_json_file("external_services_config.json", {"external_services": []})
     APIS_CONFIG = load_json_file("apis_config.json", {"apis": []})
 
-    def load_apis_from_env(env_file_path):
-        if not os.path.exists(env_file_path):
-            return []
-
-        apis = []
-        icon_default = "https://cdn.simpleicons.org/api"
-
-        with open(env_file_path, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-
-        in_apis = False
-        for line in lines:
-            raw = line.strip()
-            if not raw:
-                continue
-            if raw.startswith("#APIs"):
-                in_apis = True
-                continue
-            if in_apis and raw.startswith("#"):
-                break
-            if in_apis and "=" in raw:
-                name, url = raw.split("=", 1)
-                name = name.strip()
-                url = url.strip()
-                if name and url:
-                    config_entry = next((a for a in APIS_CONFIG.get("apis", []) if a.get("name") == name), None)
-                    icon = (config_entry.get("icon") if config_entry and config_entry.get("icon") 
-                            else icon_default)
-                    description = (config_entry.get("description") if config_entry and config_entry.get("description") 
-                                   else "API depuis .env")
-                    apis.append({
-                        "name": name,
-                        "url": url,
-                        "icon": icon,
-                        "description": description
-                    })
-
-        return apis
-
-    ENV_APIS = load_apis_from_env(env_path)
+    # Charger les APIs depuis la configuration JSON uniquement
+    api_items = APIS_CONFIG.get("apis", [])
 
     # Préparer les ressources externes depuis la configuration JSON
     external_sources = []
@@ -214,23 +176,9 @@ else:
 
     # Section APIs (fichier de config apis_config.json)
     st.subheader("🧩 APIs disponibles")
-    api_items = ENV_APIS if ENV_APIS else []
-    if not api_items:
-        for api in APIS_CONFIG.get("apis", []):
-            env_key = api.get("env_key")
-            api_url = os.getenv(env_key, "") if env_key else ""
-            if not api_url:
-                api_url = api.get("base_url", "")
-            if api_url:
-                api_items.append({
-                    "name": api.get("name", ""),
-                    "url": api_url,
-                    "icon": api.get("icon", ""),
-                    "description": api.get("description", "")
-                })
 
     if not api_items:
-        st.info("ℹ️ Aucune API configurée via .env ou apis_config.json")
+        st.info("ℹ️ Aucune API configurée dans apis_config.json")
     else:
         for api in api_items:
             icon = api.get('icon', 'https://cdn.simpleicons.org/api')
