@@ -30,10 +30,6 @@ else:
     project_name = os.getenv("ProjectName", "N/A")
     environment = os.getenv("Environment", "N/A")
     services_names_str = os.getenv("ServicesNames", "")
-    github_url = os.getenv("GitHubURL", "")
-    supabase_url = os.getenv("SupabaseURL", "")
-    prefect_url = os.getenv("PrefectURL", "")
-    neon_url = os.getenv("NeonURL", "")
 
     # Parser les ServicesNames (format CSV) et conserver uniquement les services renseignés
     services_names = [s.strip() for s in services_names_str.split(",") if s.strip()]
@@ -94,7 +90,7 @@ else:
 
     ENV_APIS = load_apis_from_env(env_path)
 
-    # Préparer et dédupliquer les ressources externes (config + variables d'environnement)
+    # Préparer les ressources externes depuis la configuration JSON
     external_sources = []
     for cfg in EXTERNAL_SERVICES_CONFIG.get("external_services", []):
         env_url = os.getenv(cfg.get("env_key", ""), "")
@@ -106,18 +102,6 @@ else:
                 "icon": cfg.get("icon", "https://cdn.simpleicons.org/link"),
                 "description": cfg.get("description", "")
             })
-
-    existing_urls = {item["url"] for item in external_sources}
-    explicit_urls = [
-        {"name": "GitHub", "url": github_url, "icon": "https://cdn.simpleicons.org/github", "description": "URL GitHub depuis .env"},
-        {"name": "Supabase", "url": supabase_url, "icon": "https://cdn.simpleicons.org/supabase", "description": "URL Supabase depuis .env"},
-        {"name": "Prefect", "url": prefect_url, "icon": "https://cdn.simpleicons.org/prefect", "description": "URL Prefect depuis .env"},
-        {"name": "Neon", "url": neon_url, "icon": "https://cdn.simpleicons.org/neon", "description": "URL Neon depuis .env"},
-    ]
-    for item in explicit_urls:
-        if item["url"] and item["url"] not in existing_urls:
-            external_sources.append(item)
-            existing_urls.add(item["url"])
 
     # En-tête
     st.title("🚀 Infrastructure Dashboard")
