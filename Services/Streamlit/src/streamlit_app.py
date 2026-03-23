@@ -94,6 +94,30 @@ else:
 
     ENV_APIS = load_apis_from_env(env_path)
 
+    # Préparer et dédupliquer les ressources externes (config + variables d'environnement)
+    external_sources = []
+    for cfg in EXTERNAL_SERVICES_CONFIG.get("external_services", []):
+        env_url = os.getenv(cfg.get("env_key", ""), "")
+        url = env_url or cfg.get("url", "")
+        if url:
+            external_sources.append({
+                "name": cfg.get("name", ""),
+                "url": url,
+                "icon": cfg.get("icon", "https://cdn.simpleicons.org/link"),
+                "description": cfg.get("description", "")
+            })
+
+    existing_urls = {item["url"] for item in external_sources}
+    explicit_urls = [
+        {"name": "GitHub", "url": github_url, "icon": "https://cdn.simpleicons.org/github", "description": "URL GitHub depuis .env"},
+        {"name": "Supabase", "url": supabase_url, "icon": "https://cdn.simpleicons.org/supabase", "description": "URL Supabase depuis .env"},
+        {"name": "Prefect", "url": prefect_url, "icon": "https://cdn.simpleicons.org/prefect", "description": "URL Prefect depuis .env"},
+        {"name": "Neon", "url": neon_url, "icon": "https://cdn.simpleicons.org/neon", "description": "URL Neon depuis .env"},
+    ]
+    for item in explicit_urls:
+        if item["url"] and item["url"] not in existing_urls:
+            external_sources.append(item)
+            existing_urls.add(item["url"])
 
     # En-tête
     st.title("🚀 Infrastructure Dashboard")
@@ -110,7 +134,7 @@ else:
         with col3:
             st.metric("Services", len(services_names))
         with col4:
-            external_count = sum([bool(x) for x in [github_url, supabase_url, prefect_url]])
+            external_count = len(external_sources)
             st.metric("Ressources Ext.", external_count)
 
     # Section Services avec icones officielles
@@ -167,18 +191,6 @@ else:
 
     # Section Ressources Externes
     st.subheader("🔐 Ressources Externes")
-
-    external_sources = []
-    for cfg in EXTERNAL_SERVICES_CONFIG.get("external_services", []):
-        env_url = os.getenv(cfg.get("env_key", ""), "")
-        url = env_url or cfg.get("url", "")
-        if url:
-            external_sources.append({
-                "name": cfg.get("name", ""),
-                "url": url,
-                "icon": cfg.get("icon", "https://cdn.simpleicons.org/link"),
-                "description": cfg.get("description", "")
-            })
 
     if not external_sources:
         st.info("❌ Aucune ressource externe configurée dans .env ou external_services_config.json")
@@ -244,8 +256,7 @@ else:
             st.markdown(f"""
             <div style="
                 display: flex;
-                align-items: center;
-                justify-content: space-between;
+                flex-direction: column;
                 gap: 10px;
                 padding: 14px;
                 border-radius: 12px;
@@ -258,14 +269,15 @@ else:
                 <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
                     <img src="{icon}" alt="Icône de {name}" aria-hidden="false" style="width: 24px; height: 24px;" />
                     <div style="min-width: 0;">
-                        <div style="font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{name}</div>
-                        <div style="font-size: 11px; opacity: 0.9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{desc}</div>
+                        <div style="font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{name}</div>
+                        <div style="font-size: 12px; opacity: 0.95; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{desc}</div>
                         <div style="font-size: 10px; opacity: 0.8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{url}</div>
                     </div>
                 </div>
                 <a href="{url}" target="_blank" role="button" aria-label="Ouvrir {name}" style="
                     display: inline-flex;
                     align-items: center;
+                    justify-content: center;
                     gap: 6px;
                     padding: 8px 14px;
                     background: white;
@@ -275,6 +287,7 @@ else:
                     font-size: 12px;
                     font-weight: 700;
                     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+                    width: fit-content;
                 ">Ouvrir ↗</a>
             </div>
             """, unsafe_allow_html=True)
