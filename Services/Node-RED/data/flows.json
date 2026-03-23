@@ -37,7 +37,7 @@
         "id": "8de49defb0fc8801",
         "type": "function",
         "z": "19324f111076af83",
-        "name": "api_conso_electrique_agregats_30min_points_soutirage",
+        "name": "api_conso_electrique_agregats_30min_points_soutirage_all",
         "func": "// Initialisation\nflow.set('allResults', []);\nflow.set('pageCount', 0);\nflow.set('NomFile', node.name+'.json');\n\nconst firstUrl = 'https://opendata.enedis.fr/data-fair/api/v1/datasets/conso-sup36-region/lines?page=1&format=json&size=5000';\nflow.set('nextUrl', firstUrl);\n\nmsg.url = firstUrl;\nnode.warn('Démarrage - URL: ' + firstUrl);\nreturn msg;",
         "outputs": 1,
         "timeout": "",
@@ -45,7 +45,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 470,
+        "x": 480,
         "y": 40,
         "wires": [
             [
@@ -69,7 +69,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 290,
+        "x": 250,
         "y": 160,
         "wires": [
             [
@@ -82,18 +82,18 @@
         "type": "function",
         "z": "19324f111076af83",
         "name": "Process & Check Next",
-        "func": "const data = msg.payload;\nconst max = 5 ;\n// Vérification erreur HTTP\nif (msg.statusCode !== 200) {\n    node.error('Erreur HTTP: ' + msg.statusCode);\n    return null;\n}\n\n// Accumulation des résultats\nconst currentResults = flow.get('allResults') || [];\nconst newResults = data.results || [];\nconst merged = currentResults.concat(newResults);\nflow.set('allResults', merged);\n\n// Compteur de pages\nconst pageCount = (flow.get('pageCount') || 0) + 1;\nflow.set('pageCount', pageCount);\n\nnode.warn(`Page ${pageCount} - ${newResults.length} résultats récupérés - Total accumulé: ${merged.length} / ${data.total}`);\n\n// Vérification pagination\nif (data.next && pageCount < max) {\n    // Il reste des pages => on continue\n    msg.url = data.next;\n    node.warn('Page suivante: ' + data.next);\n    return [msg, null]; // Output 1 : boucle\n} else {\n    // Toutes les pages récupérées => on sauvegarde\n    node.warn(`Pagination terminée ! Total: ${merged.length} résultats sur ${data.total}`);\n    \n    const fileName = flow.get('NomFile');\n    msg.payload = Buffer.from(JSON.stringify(merged, null, 2));\n    msg.filename = '/data/' + fileName;\n    \n    return [null, msg]; // Output 2 : sauvegarde\n}",
+        "func": "const data = msg.payload;\nconst max = 110;\n\n// Vérification erreur HTTP\nif (msg.statusCode !== 200) {\n    node.error('Erreur HTTP: ' + msg.statusCode);\n    return null;\n}\n\nconst newResults = data.results;\n\n// Compteur de pages\nconst pageCount = (flow.get('pageCount') || 0) + 1;\nflow.set('pageCount', pageCount);\n\n// Déterminer si premier passage\nconst isFirst = pageCount === 1;\n\n// Déterminer si dernier passage\nconst isLast = !data.next || pageCount >= max;\n\n// Construction du chunk JSON\nlet chunk = \"\";\n\n// ➜ début du tableau\nif (isFirst) {\n    chunk += \"[\";\n}\n\n// ➜ contenu (sans [] autour)\nchunk += newResults.map(obj => JSON.stringify(obj)).join(\",\\n\");\n\n// ➜ fin du tableau\nif (isLast) {\n    chunk += \"]\";\n} else {\n    chunk += \",\\n\";\n}\n\n// Conversion en buffer\nconst fileName = flow.get('NomFile');\nmsg.payload = Buffer.from(chunk);\nmsg.filename = '/data/' + fileName;\n\nnode.warn(`Page ${pageCount} - ${newResults.length} résultats`);\n\n// Pagination\nif (!isLast) {\n    msg.url = data.next;\n    return [msg, null];\n} else {\n    node.warn('Pagination terminée');\n    return [null, msg];\n}",
         "outputs": 2,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 500,
+        "x": 480,
         "y": 160,
         "wires": [
             [
-                "e55a44baff75abb8"
+                "b80858c0d477f2e2"
             ],
             [
                 "906665dfadfea120"
@@ -107,12 +107,12 @@
         "name": "Save File",
         "filename": "filename",
         "filenameType": "msg",
-        "appendNewline": false,
+        "appendNewline": true,
         "createDir": true,
-        "overwriteFile": "true",
+        "overwriteFile": "false",
         "encoding": "none",
         "x": 760,
-        "y": 100,
+        "y": 180,
         "wires": [
             [
                 "38da367522bb4eb7"
@@ -155,7 +155,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 920,
+        "x": 960,
         "y": 40,
         "wires": [
             [
@@ -175,8 +175,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 280,
-        "y": 340,
+        "x": 160,
+        "y": 300,
         "wires": [
             [
                 "c3f5a1d2e4b67890"
@@ -199,8 +199,8 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 490,
-        "y": 400,
+        "x": 130,
+        "y": 440,
         "wires": [
             [
                 "d4e6b2c1f5a78901"
@@ -219,8 +219,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 630,
-        "y": 300,
+        "x": 390,
+        "y": 440,
         "wires": [
             [
                 "e5f7c3d2a6b89012"
@@ -238,8 +238,8 @@
         "createDir": true,
         "overwriteFile": "true",
         "encoding": "none",
-        "x": 840,
-        "y": 420,
+        "x": 640,
+        "y": 440,
         "wires": [
             [
                 "f6a8d4e3b7c90123"
@@ -258,8 +258,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 920,
-        "y": 260,
+        "x": 160,
+        "y": 560,
         "wires": [
             [
                 "a1b2c3d4e5f60123"
@@ -276,8 +276,8 @@
         "console": false,
         "tostatus": false,
         "complete": "payload",
-        "x": 1310,
-        "y": 160,
+        "x": 1390,
+        "y": 140,
         "wires": []
     },
     {
@@ -290,8 +290,8 @@
         "console": false,
         "tostatus": false,
         "complete": "payload",
-        "x": 1220,
-        "y": 220,
+        "x": 1400,
+        "y": 200,
         "wires": []
     },
     {
@@ -304,7 +304,7 @@
         "console": false,
         "tostatus": false,
         "complete": "payload",
-        "x": 1290,
+        "x": 1390,
         "y": 280,
         "wires": []
     },
@@ -320,8 +320,8 @@
         "winHide": false,
         "oldrc": false,
         "name": "Upload to MinIO",
-        "x": 1120,
-        "y": 380,
+        "x": 620,
+        "y": 560,
         "wires": [
             [
                 "debug_success"
@@ -331,6 +331,25 @@
             ],
             [
                 "debug_timeout"
+            ]
+        ]
+    },
+    {
+        "id": "b80858c0d477f2e2",
+        "type": "file",
+        "z": "19324f111076af83",
+        "name": "Save File",
+        "filename": "filename",
+        "filenameType": "msg",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 400,
+        "y": 260,
+        "wires": [
+            [
+                "e55a44baff75abb8"
             ]
         ]
     }
