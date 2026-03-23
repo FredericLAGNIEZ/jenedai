@@ -38,7 +38,7 @@
         "type": "function",
         "z": "19324f111076af83",
         "name": "api_conso_electrique_agregats_30min_points_soutirage_all",
-        "func": "// Initialisation\nflow.set('allResults', []);\nflow.set('pageCount', 0);\nflow.set('NomFile', node.name+'.json');\n\nconst firstUrl = 'https://opendata.enedis.fr/data-fair/api/v1/datasets/conso-sup36-region/lines?page=1&format=json&size=5000';\nflow.set('nextUrl', firstUrl);\n\nmsg.url = firstUrl;\nnode.warn('Démarrage - URL: ' + firstUrl);\nreturn msg;",
+        "func": "// Initialisation_1\nflow.set('allResults', []);\nflow.set('pageCount', 0);\nflow.set('NomFile', node.name+'.json');\n\nconst firstUrl = 'https://opendata.enedis.fr/data-fair/api/v1/datasets/conso-sup36-region/lines?page=1&format=json&size=5000';\nflow.set('nextUrl', firstUrl);\n\nmsg.url = firstUrl;\nnode.warn('Démarrage - URL: ' + firstUrl);\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
