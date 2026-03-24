@@ -27,6 +27,13 @@
       "url": "https://console.neon.tech/app/projects/frosty-moon-83561828",
       "icon": "https://cdn.simpleicons.org/neon",
       "description": "PostgreSQL serverless"
+    },
+    {
+      "name": "Grafana",
+      "env_key": "",
+      "url": "https://jenedai.grafana.net/d/jetcht2/prediction?orgId=1&from=2025-09-26T20:30:00.000Z&to=2026-02-20T00:00:00.000Z&timezone=browser",
+      "icon": "https://cdn.simpleicons.org/grafana",
+      "description": "Monitoring des prédictions (valable 14 jours)"
     }
   ]
 }
