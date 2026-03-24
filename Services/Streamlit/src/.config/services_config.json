@@ -1,6 +1,14 @@
 {
   "services": [
     {
+      "name": "Streamlit",
+      "display_name": "Streamlit",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/streamlit/streamlit-original.svg",
+      "description": "App dashboards",
+      "repo_path_template": "https://huggingface.co/spaces/{project}/{service}/tree/main",
+      "space_url_template": "https://{project}-{service}.hf.space/"
+    },
+    {
       "name": "Airflow",
       "display_name": "Apache Airflow",
       "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apacheairflow/apacheairflow-original.svg",
@@ -9,10 +17,10 @@
       "space_url_template": "https://{project}-{service}.hf.space/"
     },
     {
-      "name": "MLflow",
-      "display_name": "MLflow",
-      "icon": "https://cdn.simpleicons.org/mlflow",
-      "description": "Tracking d'expérimentations ML",
+      "name": "Node-RED",
+      "display_name": "Node-RED",
+      "icon": "https://cdn.simpleicons.org/nodered",
+      "description": "Orchestration de flux IoT",
       "repo_path_template": "https://huggingface.co/spaces/{project}/{service}/tree/main",
       "space_url_template": "https://{project}-{service}.hf.space/"
     },
@@ -25,18 +33,18 @@
       "space_url_template": "https://{project}-{service}.hf.space/"
     },
     {
-      "name": "Streamlit",
-      "display_name": "Streamlit",
-      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/streamlit/streamlit-original.svg",
-      "description": "App dashboards",
-      "repo_path_template": "https://huggingface.co/spaces/{project}/{service}/tree/main",
-      "space_url_template": "https://{project}-{service}.hf.space/"
-    },
-    {
       "name": "n8n",
       "display_name": "n8n",
       "icon": "https://cdn.simpleicons.org/n8n",
       "description": "Automatisation no-code",
+      "repo_path_template": "https://huggingface.co/spaces/{project}/{service}/tree/main",
+      "space_url_template": "https://{project}-{service}.hf.space/"
+    },
+    {
+      "name": "MLflow",
+      "display_name": "MLflow",
+      "icon": "https://cdn.simpleicons.org/mlflow",
+      "description": "Tracking d'expérimentations ML",
       "repo_path_template": "https://huggingface.co/spaces/{project}/{service}/tree/main",
       "space_url_template": "https://{project}-{service}.hf.space/"
     },
@@ -53,14 +61,6 @@
       "display_name": "ClickHouse",
       "icon": "https://cdn.simpleicons.org/clickhouse",
       "description": "Data warehouse columnar",
-      "repo_path_template": "https://huggingface.co/spaces/{project}/{service}/tree/main",
-      "space_url_template": "https://{project}-{service}.hf.space/"
-    },
-    {
-      "name": "Node-RED",
-      "display_name": "Node-RED",
-      "icon": "https://cdn.simpleicons.org/nodered",
-      "description": "Orchestration de flux IoT",
       "repo_path_template": "https://huggingface.co/spaces/{project}/{service}/tree/main",
       "space_url_template": "https://{project}-{service}.hf.space/"
     }
