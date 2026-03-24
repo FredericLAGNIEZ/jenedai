@@ -141,7 +141,7 @@ else:
     if not external_sources:
         st.info("❌ Aucune ressource externe configurée dans .env ou external_services_config.json")
     else:
-        cols = st.columns(min(4, len(external_sources)))
+        cols = st.columns(len(external_sources))
         for idx, service in enumerate(external_sources):
             col = cols[idx % len(cols)]
             with col:
@@ -218,7 +218,6 @@ else:
                     font-size: 12px;
                     font-weight: 700;
                     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-                    width: fit-content;
                 ">Ouvrir ↗</a>
             </div>
             """, unsafe_allow_html=True)
