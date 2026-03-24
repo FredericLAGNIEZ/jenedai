@@ -8,6 +8,13 @@
       "description": "Référentiel source"
     },
     {
+      "name": "NeonDB",
+      "env_key": "NeonURL",
+      "url": "https://console.neon.tech/app/projects/frosty-moon-83561828",
+      "icon": "https://cdn.simpleicons.org/neon",
+      "description": "PostgreSQL serverless"
+    },
+    {
       "name": "Supabase",
       "env_key": "SupabaseURL",
       "url": "https://supabase.com/dashboard/org/ocntcoifuuvlznzuidvw",
@@ -20,13 +27,6 @@
       "url": "https://app.prefect.cloud/account/b0fefef3-00e0-4d9e-9e21-9064f1fc42f1/workspace/354daa3a-7076-4d09-aa35-d6b77ef0a619/dashboard",
       "icon": "https://cdn.simpleicons.org/prefect",
       "description": "Orchestration de workflows"
-    },
-    {
-      "name": "NeonDB",
-      "env_key": "NeonURL",
-      "url": "https://console.neon.tech/app/projects/frosty-moon-83561828",
-      "icon": "https://cdn.simpleicons.org/neon",
-      "description": "PostgreSQL serverless"
     },
     {
       "name": "Grafana",
