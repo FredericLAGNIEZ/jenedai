@@ -224,3 +224,81 @@ else:
             """, unsafe_allow_html=True)
 
     st.markdown("---")
+    # Section Data Monitoring
+    st.subheader("📊 Data Monitoring")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("📈 Plotly Visualisation", key="plotly_btn"):
+            st.session_state.show_plotly = not st.session_state.get('show_plotly', False)
+    with col2:
+        st.markdown("[📊 Grafana Dashboard](https://jenedai.grafana.net/public-dashboards/23995dd111fa41d7b5d4739ae33a36a9)", unsafe_allow_html=True)
+
+    if st.session_state.get('show_plotly', False):
+        with st.expander("Visualisation des Prédictions avec Plotly", expanded=True):
+            # Code pour la visualisation
+            import plotly.express as px
+            from sqlalchemy import create_engine
+            import pandas as pd
+
+            st.write("🔗 Connexion à la base de données...")
+
+            try:
+                engine = create_engine("postgresql://neondb_user:npg_zwgR0x6XNkcT@ep-dark-frost-agd5milg-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
+                query = "SELECT * FROM model_predictions ORDER BY prediction_timestamp ASC"
+                df = pd.read_sql(query, engine)
+                st.success(f"✅ Données récupérées : {len(df)} lignes")
+
+                if not df.empty:
+                    df["abs_error"] = abs(df["ground_truth"] - df["prediction"])
+
+                    # Graphique 1: Ligne réel vs prédiction
+                    fig = px.line(
+                        df,
+                        x="prediction_timestamp",
+                        y=["ground_truth", "prediction"],
+                        labels={
+                            "value": "Consommation énergétique",
+                            "prediction_timestamp": "Timestamp",
+                            "variable": "Type"
+                        },
+                        title="Consommation énergétique : Réel vs Prédiction"
+                    )
+                    fig.update_traces(
+                        hovertemplate="<br>".join([
+                            "Timestamp: %{x}",
+                            "Type: %{legendgroup}",
+                            "Valeur: %{y}",
+                            "Erreur absolue: %{customdata[0]}"
+                        ]),
+                        customdata=df[["abs_error"]].values
+                    )
+                    fig.update_layout(hovermode="x unified")
+                    st.plotly_chart(fig, use_container_width=True)
+
+                    # Graphique 2: Scatter plot
+                    fig2 = px.scatter(
+                        df,
+                        x="ground_truth",
+                        y="prediction",
+                        size="abs_error",
+                        color="abs_error",
+                        hover_data=["prediction_timestamp", "entity_id", "run_id"],
+                        labels={"ground_truth": "Valeur réelle", "prediction": "Prédiction", "abs_error": "Erreur absolue"},
+                        title="Valeurs réelles vs Prédictions"
+                    )
+                    fig2.add_shape(
+                        type="line",
+                        x0=df["ground_truth"].min(),
+                        y0=df["ground_truth"].min(),
+                        x1=df["ground_truth"].max(),
+                        y1=df["ground_truth"].max(),
+                        line=dict(color="red", dash="dash")
+                    )
+                    st.plotly_chart(fig2, use_container_width=True)
+                else:
+                    st.warning("Aucune donnée trouvée dans la table model_predictions.")
+            except Exception as e:
+                st.error(f"Erreur lors de la récupération des données : {e}")
+
+    st.markdown("---")
