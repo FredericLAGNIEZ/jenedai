@@ -243,7 +243,7 @@ else:
             st.write("🔗 Connexion à la base de données...")
 
             try:
-                engine = create_engine("postgresql://neondb_user:npg_zwgR0x6XNkcT@ep-dark-frost-agd5milg-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
+                engine = create_engine(os.environ["NEON_POSTGRES_URI"])
                 query = "SELECT * FROM model_predictions ORDER BY prediction_timestamp ASC"
                 df = pd.read_sql(query, engine)
                 st.success(f"✅ Données récupérées : {len(df)} lignes")
