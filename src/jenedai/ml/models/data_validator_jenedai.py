@@ -65,7 +65,6 @@ class DataValidator:
     # REMOVED :  'lat', 'lon' utilisés pour la météo,  'semaine_max_du_mois_0_1' : données incomplètes
 
     TARGET = 'total_energie_soutiree_wh'
-
     COL_DATE = "horodate"
 
     # COLUMNS SCHEMA
@@ -81,7 +80,7 @@ class DataValidator:
         cols_to_keep = [col for col in self.REQUIRED_COLS if col in df.columns]
         return df[cols_to_keep] 
     
-    # CAST
+    # CAST DATETIME
     def verify_datetime(self, df: pd.DataFrame) -> None:
         parsed = pd.to_datetime(df[self.COL_DATE],format="ISO8601", errors="coerce")
         invalid_mask = parsed.isna() & df[self.COL_DATE].notna()
@@ -142,10 +141,11 @@ class DataValidator:
             raise ValueError("Missing value check failed:\n  " + "\n  ".join(errors))
 
     #@task
-    def validate(self, df: pd.DataFrame) -> pd.DataFrame:
+    def validate(self, logger, df: pd.DataFrame) -> pd.DataFrame:
         self.check_valid_schema(df)
         df=self.remove_non_used_columns(df)
         self.verify_datetime(df)
         df=self.remove_invalid_rows(df)
         self.check_missing_values(df)
+        logger.info("Data validated")
         return df
