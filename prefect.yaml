@@ -1,0 +1,34 @@
+---
+name: Jenedai
+prefect-version: 3.6.23
+ 
+build: null
+push: null
+ 
+pull:
+- prefect.deployments.steps.git_clone:
+    id: clone-step
+    repository: https://github.com/Jenedai/jenedai
+    branch: mlops_frederic
+- prefect.deployments.steps.run_shell_script:
+    script: pip install -r requirements.txt
+    directory: "{{ clone-step.directory }}"
+ 
+deployments:
+- name: consume-energy
+  version: null
+  tags: []
+  concurrency_limit: null
+  description: ETL pipeline for energy consumption data.
+  entrypoint: src/jenedai/ml/scripts/test_prefect.py:etl
+  parameters: {}
+  work_pool:
+    name: energy-pool
+    work_queue_name: null
+    job_variables: {}
+  schedules:
+  - cron: '*/1 * * * *'
+    timezone: UTC
+    day_or: true
+    active: true
+ 
