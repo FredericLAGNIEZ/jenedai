@@ -45,12 +45,6 @@ def load_task(logger, data_path: str) -> pd.DataFrame|None:
         logger.error(f" {msg} : {e}")
         return None
 
-# Chemin absolu relatif au script
-data_folder = Path(__file__).parents[4] / "data"
-data_path = data_folder / "extract_cvs_engis_dataset.csv "
-# Chemin absolu relatif au script
-logs_folder = Path(__file__).parents[4] / "logs"
-
 @flow(
 name="consume_energy_etl",
 description="ETL pipeline for energy consumption data.",
@@ -63,7 +57,7 @@ def etl():
     Point d'entrée principal des pipelines
     """
     # ✅ Chemins définis en premier dans le flow
-    data_folder = Path(__file__).parents[3] / "data"
+    data_folder = sys.path / "data"
     data_path = data_folder / "extract_cvs_engis_dataset.csv"
     logs_folder = Path(__file__).parents[3] / "logs"
     
