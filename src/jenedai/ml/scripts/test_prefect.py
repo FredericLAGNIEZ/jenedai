@@ -68,6 +68,9 @@ def etl():
     print("sys.path:", sys.path)
     print("PYTHONPATH:", os.environ.get("PYTHONPATH", "NOT SET"))
 
+    print(f"CSV exists: {data_path.exists()}")
+    print(f"CSV size: {os.path.getsize(data_path) if data_path.exists() else 'NOT FOUND'}")
+
     # Hors système de logging
     console = get_console()
 
