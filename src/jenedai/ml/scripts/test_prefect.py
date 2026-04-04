@@ -50,6 +50,8 @@ data_path = data_folder / "extract_cvs_engis_dataset.csv "
 logs_folder = Path(__file__).parents[4] / "logs"
 
 
+/opt/prefect/jenedai-mlops_frederic/data/')]
+
 @flow(
 name="consume_energy_etl",
 description="ETL pipeline for energy consumption data.",
@@ -95,7 +97,7 @@ def etl():
     # Data_pipeline : loading
     try:
         print(f"New new data_path : {data_path}")
-        df = load_task(logger, data_path)
+        df = load_task(logger,str(data_path))
         # ✅ Version défensive complète
         if df is None:
             raise ValueError("load_data n'a retourné aucune donnée.")
