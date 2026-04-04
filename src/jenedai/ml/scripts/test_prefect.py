@@ -6,7 +6,6 @@ src_path = Path(__file__).parents[3]
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
-
 import argparse
 import traceback
 from prefect import flow, task, get_run_logger
@@ -63,7 +62,6 @@ def etl():
     print("sys.path:", sys.path)
     print("PYTHONPATH:", os.environ.get("PYTHONPATH", "NOT SET"))
 
-
     # Hors système de logging
     console = get_console()
 
@@ -72,7 +70,7 @@ def etl():
     console.print("[bold cyan]" + "=" * 60 + "[/bold cyan]\n")
 
     logs_folder = "./logs"
-    data_folder = "./data"
+    data_folder = "../data"
     
     # ✅ Système de logging
     logger = configure_logging(
@@ -102,6 +100,7 @@ def etl():
         
     # Data_pipeline : loading
     data_path = Path(data_folder) /"extract_cvs_engis_dataset_500000.csv"
+    print(data_path)
     try:
         df = load_task(logger, data_path)
         # ✅ Version défensive complète
