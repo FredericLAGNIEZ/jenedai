@@ -13,13 +13,14 @@ from jenedai.ml.models.data_validator_jenedai import DataValidator
 from jenedai.ml.models.data_caster_jenedai import DataCaster
 from jenedai.ml.models.data_transformer_jenedai import Transformer
 from jenedai.ml.models.load_data_jenedai import load_data
-
+from prefect.runner.storage import GitRepository
 
 # from prefect.settings import PREFECT_API_URL
 # import os
 
 from dotenv import load_dotenv
 load_dotenv()
+
 
 @task(
 name="load",
@@ -63,7 +64,7 @@ def etl():
         path_logs=logs_folder,
         name=f"ML Enedis",
         profile="basic",
-    )
+    )   
 
     logger.info("Système de logs configuré")
 
@@ -100,14 +101,26 @@ def etl():
         raise 
 
 
+# if __name__ == "__main__":
+#     try:            
+#         etl.deploy(
+#             name="consume-energy",
+#             work_pool_name="energy-pool",   # ⚠️ doit exister sur ton serveur Prefect
+#             cron="*/5 * * * *",
+#             tags=["energy", "etl"],
+#             description="Daily energy consumption ETL and ML.",
+#             source=GitRepository(
+#                 url="https://github.com/Jenedai/jenedai",
+#                 branch="mlops_frederic",
+#             ))            
+#     except KeyboardInterrupt:
+#         print("\n\n⚠️  Interruption utilisateur")
+#     except Exception as e:
+#         print(f"\n❌ Erreur fatale: {e}")
+
 if __name__ == "__main__":
     try:            
-        etl.deploy(
-            name="consume-energy",
-            work_pool_name="energy-pool",   # ⚠️ doit exister sur ton serveur Prefect
-            cron="*/5 * * * *",
-            tags=["energy", "etl"],
-            description="Daily energy consumption ETL and ML.")            
+        etl()           
     except KeyboardInterrupt:
         print("\n\n⚠️  Interruption utilisateur")
     except Exception as e:
