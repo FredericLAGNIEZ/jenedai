@@ -45,7 +45,7 @@ def load_task(logger, data_path: str) -> pd.DataFrame|None:
 
 # Chemin absolu relatif au script
 data_folder = Path(__file__).parents[4] / "data"
-data_path = data_folder / "extract_cvs_engis_dataset_500000.csv"
+data_path = data_folder / "extract_cvs_engis_dataset.csv "
 # Chemin absolu relatif au script
 logs_folder = Path(__file__).parents[4] / "logs"
 
