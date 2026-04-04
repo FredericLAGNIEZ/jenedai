@@ -1,5 +1,7 @@
 import sys
 from pathlib import Path
+import os
+
 
 # src/jenedai/ml/scripts/test_prefect.py → remonte 3 niveaux → src/
 src_path = Path(__file__).parents[3]
@@ -60,9 +62,15 @@ def etl():
     """
     Point d'entrée principal des pipelines
     """
+    # ✅ Chemins définis en premier dans le flow
+    data_folder = Path(__file__).parents[3] / "data"
+    data_path = data_folder / "extract_cvs_engis_dataset.csv"
+    logs_folder = Path(__file__).parents[3] / "logs"
+    
+    print(f"data_path: {data_path}")
+    print(f"exists: {data_path.exists()}")
 
-    import sys
-    import os
+
     print("Python:", sys.executable)
     print("sys.path:", sys.path)
     print("cwd:", sys.path)
