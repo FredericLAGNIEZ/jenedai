@@ -6,11 +6,10 @@ src_path = Path(__file__).parents[3]
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
-import argparse
 import traceback
 from prefect import flow, task, get_run_logger
 from prefect.tasks import task_input_hash
-from prefect.blocks.notifications import SlackWebhook  # optionnel
+# from prefect.blocks.notifications import SlackWebhook  # optionnel
 from datetime import timedelta
 import pandas as pd
 from prefect.settings import PREFECT_API_URL
@@ -43,7 +42,15 @@ def load_task(logger, data_path: str) -> pd.DataFrame|None:
         msg = "Loading error on Data Pipeline"
         logger.error(f" {msg} : {e}")
         return None
-        
+
+# Chemin absolu relatif au script
+data_folder = Path(__file__).parents[3] / "data"
+data_path = data_folder / "extract_cvs_engis_dataset_500000.csv"
+print(f"New data_path : {data_path}")
+# Chemin absolu relatif au script
+logs_folder = Path(__file__).parents[3] / "logs"
+
+
 @flow(
 name="consume_energy_etl",
 description="ETL pipeline for energy consumption data.",
@@ -68,39 +75,16 @@ def etl():
     console.print("\n[bold cyan]" + "=" * 60 + "[/bold cyan]")
     console.print("[bold cyan]🔍 ML Enedis [/bold cyan]")
     console.print("[bold cyan]" + "=" * 60 + "[/bold cyan]\n")
-
-    logs_folder = "./logs"
-    data_folder = "../data"
     
     # ✅ Système de logging
     logger = configure_logging(
         path_logs=logs_folder,
         name=f"ML Enedis",
         profile="basic",
-    )   
-
-    logger.info("Système de logs configuré")
-
-    # ✅ Parser d'arguments
-    parser = argparse.ArgumentParser(
-        description="ML Enedis",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-        Exemples d'utilisation:
-        python3 ....
-        """,
     )
-    # parser.add_argument(
-    #     "--no-export",
-    #     action="store_true",
-    #     help="Ne pas exporter en JSON (garder uniquement le JSONL)",
-    # )
-
-    # # args = parser.parse_args()
-        
+    logger.info("Système de logs configuré")
+         
     # Data_pipeline : loading
-    data_path = Path(data_folder) /"extract_cvs_engis_dataset_500000.csv"
-    print(data_path)
     try:
         df = load_task(logger, data_path)
         # ✅ Version défensive complète
