@@ -66,7 +66,13 @@ def etl():
     import os
     print("Python:", sys.executable)
     print("sys.path:", sys.path)
+    print("cwd:", sys.path)
     print("PYTHONPATH:", os.environ.get("PYTHONPATH", "NOT SET"))
+    
+    print(f"CWD: {os.getcwd()}")
+    print(f"__file__: {__file__}")
+    print(f"data_path exists: {data_path.exists()}")
+    print(f"Contenu du dossier data: {list(Path(os.getcwd()).glob('data/*'))}")
 
     print(f"CSV exists: {data_path.exists()}")
     print(f"CSV size: {os.path.getsize(data_path) if data_path.exists() else 'NOT FOUND'}")
