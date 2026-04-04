@@ -44,10 +44,10 @@ def load_task(logger, data_path: str) -> pd.DataFrame|None:
         return None
 
 # Chemin absolu relatif au script
-data_folder = Path(__file__).parents[3] / "data"
+data_folder = Path(__file__).parents[4] / "data"
 data_path = data_folder / "extract_cvs_engis_dataset_500000.csv"
 # Chemin absolu relatif au script
-logs_folder = Path(__file__).parents[3] / "logs"
+logs_folder = Path(__file__).parents[4] / "logs"
 
 
 @flow(
@@ -85,7 +85,7 @@ def etl():
          
     # Data_pipeline : loading
     try:
-        print(f"New data_path : {data_path}")
+        print(f"New new data_path : {data_path}")
         df = load_task(logger, data_path)
         # ✅ Version défensive complète
         if df is None:
