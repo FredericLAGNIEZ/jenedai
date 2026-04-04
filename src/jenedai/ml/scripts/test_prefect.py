@@ -57,7 +57,7 @@ def etl():
     Point d'entrée principal des pipelines
     """
     # ✅ Chemins définis en premier dans le flow
-    data_folder = sys.path / "data"
+    data_folder = Path("./data")
     data_path = data_folder / "extract_cvs_engis_dataset.csv"
     logs_folder = Path(__file__).parents[3] / "logs"
     
