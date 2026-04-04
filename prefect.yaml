@@ -11,13 +11,13 @@ pull:
     repository: https://github.com/Jenedai/jenedai
     branch: mlops_frederic
 - prefect.deployments.steps.run_shell_script:
-    script: |
-      pip install uv
-      which python
-      which prefect
-      python -c "import sys; print(sys.path)"
-      uv pip install --python $(which python) -e .
-      python -c "import jenedai; print('jenedai OK')"
+    script: pip install uv
+    directory: "{{ clone-step.directory }}"
+- prefect.deployments.steps.run_shell_script:
+    script: uv pip install --python /usr/local/bin/python3.12 --no-build-isolation -e .
+    directory: "{{ clone-step.directory }}"
+- prefect.deployments.steps.run_shell_script:
+    script: python -c "import sys; print(sys.path); import os; print(os.environ.get('PYTHONPATH', 'NOT SET'))"
     directory: "{{ clone-step.directory }}"
     
 deployments:
@@ -32,9 +32,10 @@ deployments:
     name: energy-pool
     work_queue_name: null
     job_variables: {}
+    env:
+        PYTHONPATH: /opt/prefect/jenedai-mlops_frederic/src
   schedules:
   - cron: '*/1 * * * *'
     timezone: UTC
     day_or: true
     active: true
- 

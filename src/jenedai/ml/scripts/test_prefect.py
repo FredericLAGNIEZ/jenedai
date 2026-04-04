@@ -7,12 +7,12 @@ from prefect.blocks.notifications import SlackWebhook  # optionnel
 from datetime import timedelta
 import pandas as pd
 from prefect.settings import PREFECT_API_URL
-from jenedai.ml.utils.logs import configure_logging
-from jenedai.ml.utils.get_console import get_console
-from jenedai.ml.models.data_validator_jenedai import DataValidator
-from jenedai.ml.models.data_caster_jenedai import DataCaster
-from jenedai.ml.models.data_transformer_jenedai import Transformer
-from jenedai.ml.models.load_data_jenedai import load_data
+# from jenedai.ml.utils.logs import configure_logging
+# from jenedai.ml.utils.get_console import get_console
+# from jenedai.ml.models.data_validator_jenedai import DataValidator
+# from jenedai.ml.models.data_caster_jenedai import DataCaster
+# from jenedai.ml.models.data_transformer_jenedai import Transformer
+# from jenedai.ml.models.load_data_jenedai import load_data
 from prefect.runner.storage import GitRepository
 
 # from prefect.settings import PREFECT_API_URL
@@ -20,7 +20,6 @@ from prefect.runner.storage import GitRepository
 
 from dotenv import load_dotenv
 load_dotenv()
-
 
 @task(
 name="load",
@@ -49,6 +48,14 @@ def etl():
     """
     Point d'entrée principal des pipelines
     """
+
+    import sys
+    import os
+    print("Python:", sys.executable)
+    print("sys.path:", sys.path)
+    print("PYTHONPATH:", os.environ.get("PYTHONPATH", "NOT SET"))
+
+
     # Hors système de logging
     console = get_console()
 
