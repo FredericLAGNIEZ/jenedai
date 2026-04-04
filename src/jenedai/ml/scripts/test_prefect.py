@@ -49,9 +49,6 @@ data_path = data_folder / "extract_cvs_engis_dataset.csv "
 # Chemin absolu relatif au script
 logs_folder = Path(__file__).parents[4] / "logs"
 
-
-/opt/prefect/jenedai-mlops_frederic/data/')]
-
 @flow(
 name="consume_energy_etl",
 description="ETL pipeline for energy consumption data.",
