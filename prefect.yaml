@@ -11,9 +11,15 @@ pull:
     repository: https://github.com/Jenedai/jenedai
     branch: mlops_frederic
 - prefect.deployments.steps.run_shell_script:
-    script: pip install -r requirements.txt
+    script: |
+      pip install uv
+      which python
+      which prefect
+      python -c "import sys; print(sys.path)"
+      uv pip install --python $(which python) -e .
+      python -c "import jenedai; print('jenedai OK')"
     directory: "{{ clone-step.directory }}"
- 
+    
 deployments:
 - name: consume-energy
   version: null
