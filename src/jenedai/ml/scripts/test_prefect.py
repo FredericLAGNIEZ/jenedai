@@ -1,4 +1,12 @@
+import sys
 from pathlib import Path
+
+# src/jenedai/ml/scripts/test_prefect.py → remonte 3 niveaux → src/
+src_path = Path(__file__).parents[3]
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
+
+
 import argparse
 import traceback
 from prefect import flow, task, get_run_logger
@@ -7,12 +15,12 @@ from prefect.blocks.notifications import SlackWebhook  # optionnel
 from datetime import timedelta
 import pandas as pd
 from prefect.settings import PREFECT_API_URL
-# from jenedai.ml.utils.logs import configure_logging
-# from jenedai.ml.utils.get_console import get_console
-# from jenedai.ml.models.data_validator_jenedai import DataValidator
-# from jenedai.ml.models.data_caster_jenedai import DataCaster
-# from jenedai.ml.models.data_transformer_jenedai import Transformer
-# from jenedai.ml.models.load_data_jenedai import load_data
+from jenedai.ml.utils.logs import configure_logging
+from jenedai.ml.utils.get_console import get_console
+from jenedai.ml.models.data_validator_jenedai import DataValidator
+from jenedai.ml.models.data_caster_jenedai import DataCaster
+from jenedai.ml.models.data_transformer_jenedai import Transformer
+from jenedai.ml.models.load_data_jenedai import load_data
 from prefect.runner.storage import GitRepository
 
 # from prefect.settings import PREFECT_API_URL
