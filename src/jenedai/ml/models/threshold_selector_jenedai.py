@@ -37,119 +37,95 @@ class VarianceThresholdSelector:
         self.selected_features_ = None
         self.removed_features_ = None
         self.feature_variances_ = None
-        
+
     def fit(self, X: pd.DataFrame, feature_names: List[str] = None) -> 'VarianceThresholdSelector':
-        """
-        Fit the selector on the training data.
-        
-        Parameters:
-        -----------
-        X : pd.DataFrame
-            Feature matrix
-        feature_names : list, optional
-            Feature names (uses X.columns if DataFrame)
-            
-        Returns:
-        --------
-        self : VarianceThresholdSelector
-        """
+
         if isinstance(X, pd.DataFrame):
-            feature_names = X.columns.tolist()
-            X_array = X.values
+            if feature_names is not None:
+                X = X[feature_names]
+            
+            X_numeric = X.select_dtypes(include=[np.number])
+            print(f"DEBUG colonnes numériques : {X_numeric.columns.tolist()}")  # 👈
+            print(f"DEBUG shape : {X_numeric.shape}")                            # 👈
+            
+            if X_numeric.shape[1] != X.shape[1]:
+                dropped = set(X.columns) - set(X_numeric.columns)
+                print(f"⚠️  Colonnes non-numériques ignorées : {dropped}")
+            
+            feature_names = X_numeric.columns.tolist()
+            X_array = X_numeric.values.astype(float)
         else:
-            X_array = X
+            X_array = np.array(X, dtype=float)
             if feature_names is None:
-                feature_names = [f"feature_{i}" for i in range(X.shape[1])]
-        
-        # Calculate variance for each feature
+                feature_names = [f"feature_{i}" for i in range(X_array.shape[1])]
+
         variances = np.var(X_array, axis=0)
-        
-        # Normalize variance by range if requested
+        print(f"DEBUG variances : {variances}")  # 👈
+
         if self.normalize:
-            ranges = np.ptp(X_array, axis=0)  # peak-to-peak (max - min)
-            # Avoid division by zero
+            ranges = np.ptp(X_array, axis=0)
             ranges[ranges == 0] = 1
             normalized_variances = variances / (ranges ** 2)
         else:
             normalized_variances = variances
-            
-        # Identify features to keep
+
         mask = normalized_variances > self.threshold
-        
-        # Store results
+        print(f"DEBUG mask : {mask}")  # 👈
+
         self.selected_features_ = [f for f, m in zip(feature_names, mask) if m]
         self.removed_features_ = [f for f, m in zip(feature_names, mask) if not m]
         self.feature_variances_ = dict(zip(feature_names, normalized_variances))
         
+        print(f"DEBUG selected : {self.selected_features_}")  # 👈
+
         return self
-    
-    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
-        """
-        Transform data by removing low-variance features.
         
-        Parameters:
-        -----------
-        X : pd.DataFrame
-            Feature matrix
-            
-        Returns:
-        --------
-        X_selected : pd.DataFrame
-            Feature matrix with low-variance features removed
-        """
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         if self.selected_features_ is None:
             raise ValueError("Selector has not been fitted yet. Call fit() first.")
         
         if isinstance(X, pd.DataFrame):
-            return X[self.selected_features_]
+            # ✅ On ne garde que les selected_features_ qui existent dans X
+            available = [f for f in self.selected_features_ if f in X.columns]
+            missing = set(self.selected_features_) - set(available)
+            if missing:
+                print(f"⚠️  Features absentes du DataFrame : {missing}")
+            return X[available]
         else:
-            # If numpy array, return selected columns
-            indices = [list(X.columns).index(f) for f in self.selected_features_]
+            # ✅ Fix : X est un array, pas un DataFrame — X.columns n'existe pas
+            if self.selected_features_ is None:
+                raise ValueError("Impossible de transformer un array sans fit préalable.")
+            indices = list(range(len(self.selected_features_)))  # fallback positionnel
             return X[:, indices]
-    
+
+
     def fit_transform(self, X: pd.DataFrame, feature_names: List[str] = None) -> pd.DataFrame:
-        """
-        Fit and transform in one step.
+        self.fit(X, feature_names)
         
-        Parameters:
-        -----------
-        X : pd.DataFrame
-            Feature matrix
-        feature_names : list, optional
-            Feature names
-            
-        Returns:
-        --------
-        X_selected : pd.DataFrame
-            Transformed feature matrix
-        """
-        return self.fit(X, feature_names).transform(X)
-    
+        # ✅ transform doit recevoir le même sous-ensemble que fit
+        if isinstance(X, pd.DataFrame) and feature_names is not None:
+            return self.transform(X[feature_names].select_dtypes(include=[np.number]))
+        return self.transform(X)
+
+
     def get_report(self) -> pd.DataFrame:
-        """
-        Get detailed report of feature selection.
-        
-        Returns:
-        --------
-        report : pd.DataFrame
-            Report with variance scores and selection status
-        """
         if self.feature_variances_ is None:
             raise ValueError("Selector has not been fitted yet. Call fit() first.")
         
-        report_data = []
-        for feature, variance in self.feature_variances_.items():
-            selected = feature in self.selected_features_
-            report_data.append({
+        report_data = [
+            {
                 'Feature': feature,
                 'Variance': variance,
-                'Selected': selected,
-                'Status': 'Kept' if selected else 'Removed'
-            })
+                'Selected': feature in self.selected_features_,
+                'Status': 'Kept' if feature in self.selected_features_ else 'Removed'
+            }
+            for feature, variance in self.feature_variances_.items()
+        ]
         
         df = pd.DataFrame(report_data)
         return df.sort_values('Variance', ascending=False).reset_index(drop=True)
 
+        
 
 def demo_variance_selector():
     """Demonstrate variance threshold selector usage."""

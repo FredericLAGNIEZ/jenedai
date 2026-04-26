@@ -141,11 +141,10 @@ class DataValidator:
             raise ValueError("Missing value check failed:\n  " + "\n  ".join(errors))
 
     #@task
-    def validate(self, logger, df: pd.DataFrame) -> pd.DataFrame:
+    def validate(self, df: pd.DataFrame) -> pd.DataFrame:
         self.check_valid_schema(df)
         df=self.remove_non_used_columns(df)
         self.verify_datetime(df)
         df=self.remove_invalid_rows(df)
         self.check_missing_values(df)
-        logger.info("Data validated")
         return df
