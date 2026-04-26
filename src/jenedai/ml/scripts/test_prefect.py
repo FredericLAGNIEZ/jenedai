@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 import os
 from sqlalchemy import create_engine
-import psycopg2
+#import psycopg2
 import traceback
 
 # src/jenedai/ml/scripts/test_prefect.py → remonte 3 niveaux → src/
