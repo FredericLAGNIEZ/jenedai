@@ -87,57 +87,50 @@ class StatisticalTestSelector:
         pvalues_corrected = pvalues_corrected[original_order]
         
         return rejected, pvalues_corrected
-    
+
     def fit(self, X: pd.DataFrame, y: pd.Series, task: str = 'classification') -> 'StatisticalTestSelector':
-        """
-        Fit the selector on training data.
+    
+    # ✅ Séparer numérique et catégoriel
+        X_numeric = X.select_dtypes(include=[np.number])
+        X_categorical = X.select_dtypes(exclude=[np.number])
         
-        Parameters:
-        -----------
-        X : pd.DataFrame
-            Feature matrix
-        y : pd.Series
-            Target variable
-        task : str
-            Task type: 'classification' or 'regression' (default: 'classification')
-            
-        Returns:
-        --------
-        self : StatisticalTestSelector
-        """
-        feature_names = X.columns.tolist()
+        if X_numeric.shape[1] == 0:
+            raise ValueError("Aucune colonne numérique dans X.")
         
+        dropped = set(X.columns) - set(X_numeric.columns)
+        if dropped:
+            print(f"⚠️  Colonnes non-numériques ignorées par le test statistique : {dropped}")
+        
+        feature_names = X_numeric.columns.tolist()
+        
+        # ✅ Supprimer les NaN
+        mask_valid = X_numeric.notna().all(axis=1) & y.notna()
+        X_numeric = X_numeric[mask_valid]
+        y_clean = y[mask_valid]
+
         # Select appropriate test
         if self.test_type == 'auto':
-            if task == 'classification':
-                test_func = f_classif
-            else:
-                test_func = f_regression
+            test_func = f_classif if task == 'classification' else f_regression
         elif self.test_type == 'anova':
             test_func = f_classif
         elif self.test_type == 'chi2':
             test_func = chi2
-            # Chi2 requires non-negative values
-            X = X - X.min() + 1e-10
+            X_numeric = X_numeric - X_numeric.min() + 1e-10
         elif self.test_type == 'mutual_info':
-            if task == 'classification':
-                test_func = mutual_info_classif
-            else:
-                test_func = mutual_info_regression
+            test_func = mutual_info_classif if task == 'classification' else mutual_info_regression
         elif self.test_type == 'f_regression':
             test_func = f_regression
         else:
             raise ValueError(f"Unknown test type: {self.test_type}")
-        
-        # Compute test statistics and p-values
+
+        # Compute scores
         if self.test_type == 'mutual_info':
-            # Mutual information doesn't return p-values
-            scores = test_func(X, y, random_state=42)
-            # Use scores directly, treat as pseudo p-values (1 - normalized score)
-            pvalues = 1 - (scores / scores.max() if scores.max() > 0 else scores)
+            scores = test_func(X_numeric, y_clean, random_state=42)
+            max_score = scores.max()
+            pvalues = 1 - (scores / max_score if max_score > 0 else np.zeros_like(scores))
         else:
-            scores, pvalues = test_func(X, y)
-        
+            scores, pvalues = test_func(X_numeric, y_clean)
+
         # Apply multiple testing correction
         if self.correction == 'bonferroni':
             pvalues_corrected = self._bonferroni_correction(pvalues)
