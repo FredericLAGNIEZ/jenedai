@@ -54,8 +54,6 @@ class DataCaster:
         "profil",
         'plage_de_puissance_souscrite',
         'secteur_activite',
-        'jour_max_du_mois_0_1',
-        'semaine_max_du_mois_0_1',
     ]
 
     def cast_datetime(self, df: pd.DataFrame) -> pd.DataFrame:

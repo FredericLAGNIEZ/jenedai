@@ -74,19 +74,34 @@ class Transformer:
         """Extrait month et day depuis 'date_time' déjà casté en datetime."""
         df["jour"] = pd.to_datetime(df["jour"], format="ISO8601", errors="coerce")
         dt = df["jour"]  # déjà datetime64 après DataCaster
-        df["month"] = dt.dt.month.astype("Int8")   # Int8 suffisant (1-12)
+        df["month"] = dt.dt.month.astype("category")   # Int8 suffisant (1-12)        
         df["day"]   = dt.dt.day.astype("Int8")     # Int8 suffisant (1-31)
-        df["jour_semaine"] = dt.dt.dayofweek
+        df["jour_semaine"] = dt.dt.dayofweek.astype("category")
         df = df.drop (["jour"], axis=1)
         df = df.drop (["day"], axis=1)
         return df
+        
 
-    #@task
+
+    def transform_vacances_features(self,df) -> pd.DataFrame:
+        #Fonction pour vérifier si la ville est en vacances dans au moins une zone
+        df["en_vacances"] = (
+            (df["vacances_zone_a"] == "True") | 
+            (df["vacances_zone_b"] == "True") | 
+            (df["vacances_zone_c"] == "True")
+        ).astype(int)
+
+        df = df.drop(columns=["vacances_zone_a", "vacances_zone_b", "vacances_zone_c"])
+        return df
+        
+            #@task
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         df = self.rename_columns(df)
         df = self.reset_index(df)
         df = self.aggregate_date(df)
         df = self.split_datetime(df)
+        df = self.transform_vacances_features(df)
+        df = df.dropna() # erase all nan..
         return df
 
 
