@@ -2,68 +2,42 @@
 
 
 
-# Deploiement sur Prefect Cloud
-## Se logger
-Se logger avec le compte jenedai sur prefect et github ainsi que sur github
 
-## Se placer dans l'environnement virtuel du projet
-```bash
-source .venv/bin/activate
+## Access the MLflow UI
+
+Open your browser at:
+
+```
+http://127.0.0.1:5000
 ```
 
-## Login
-```bash
-prefect cloud login
+Only the **Default** experiment will be listed on first launch.
+
+---
+
+## Set the Tracking URI in your code
+
+```python
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
 ```
 
-## List prefect pools
+Call this before any `mlflow.log_*` or `mlflow.start_run()` call. It tells the MLflow client where to send tracking data.
+
+---
+
+## Cloud MLflow Tracking Server
+
+### Start the server with Docker
+
 ```bash
-prefect work-pool ls
-```
-
-## If not existing, create a pool named energy-pool
-```bash
-prefect work-pool create energy-pool --type prefect:managed
-```
-
-
-## Launch deployment on GithUb
-```bash
-prefect deploy -n consume-energy
-```
-
-## Config
-Le fichier prefect.yaml à la racine sert de configuration
-
-## UI
-On peut observer les runs sur l'interface graphique. Attention, l'emploi des ressources CPU est limité à 500 minutes par cycle de facturation.
-
-
-# Deploiement en local
-Flow is being served with :
-```bash
-uv run python src/jenedai/ml/scripts/test_prefect.py
-```
-
-## To schedule a run
-```bash
-prefect deployment run 'consume_energy_etl/consume-energy'
+# coming soon
 ```
 
 
-##etl.serve(name="cpd-pipeline-deployment", cron="0 0 * * *")
-
-## Resssources :
-## Inspect deployment
-```bash
-prefect deployment inspect consume_energy_etl/consume-energy
-```
+## 
+Adresse de suivi mlflow :
+ https://jenedai-mlflow.hf.space/
 
 
-## Delete deployment
-```bash
- prefect deployment delete consume_energy_etl/consume-energy
-```
 
-## obberver le flow des runs
- prefect flow-run ls
+# TODO: Evidently AI, PREDICTION

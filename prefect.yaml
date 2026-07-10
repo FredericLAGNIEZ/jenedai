@@ -26,7 +26,7 @@ deployments:
   tags: []
   concurrency_limit: null
   description: ETL pipeline for energy consumption data.
-  entrypoint: src/jenedai/ml/scripts/test_prefect.py:etl
+  entrypoint: src/jenedai/ml/scripts/prefect_flow.py:etl
   parameters: {}
   work_pool:
     name: energy-pool

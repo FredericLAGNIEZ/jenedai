@@ -30,9 +30,9 @@ ARG MLFLOW_S3_ENDPOINT_URL
 
 # Possibilité d'améliorer la sécurité en cherchant à limiter   --allowed-hosts "*" \   --cors-allowed-origins "*" à des domaines spécifiques
 # Pas sur que cela soit possible dans le contexte de Hugging Face Spaces, à vérifier
+# ✅ Après — plus de \ à la fin de la dernière ligne
 CMD mlflow server --host 0.0.0.0 \
   --port 7860 \
   --backend-store-uri $MLFLOW_POSTGRES_URI \
   --default-artifact-root "s3://mlflow-artifacts/" \
-  --allowed-hosts "*" \
-  --cors-allowed-origins "*"
+  --allowed-hosts "*"
