@@ -40,12 +40,18 @@ On peut observer les runs sur l'interface graphique. Attention, l'emploi des res
 
 
 # Deploiement en local
-
+Flow is being served with :
 ```bash
- etl.serve(name="cpd-pipeline-deployment", cron="0 0 * * *")
- ```
+uv run python src/jenedai/ml/scripts/test_prefect.py
+```
+
+## To schedule a run
+```bash
+prefect deployment run 'consume_energy_etl/consume-energy'
+```
 
 
+##etl.serve(name="cpd-pipeline-deployment", cron="0 0 * * *")
 
 ## Resssources :
 ## Inspect deployment
@@ -57,11 +63,6 @@ prefect deployment inspect consume_energy_etl/consume-energy
 ## Delete deployment
 ```bash
  prefect deployment delete consume_energy_etl/consume-energy
-```
-
-## To schedule a run
-```bash
-prefect deployment run 'consume_energy_etl/consume-energy'
 ```
 
 ## obberver le flow des runs
