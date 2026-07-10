@@ -48,6 +48,7 @@ class DataCaster:
         'precipitation_sum'   
     ]
     
+
     STRING_COLS: list[str] = [
         "region",
         'ville'

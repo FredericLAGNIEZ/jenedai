@@ -1,7 +1,14 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # jenedai
 repo pour le projet principal Jedha
 =======
+=======
+
+# jenedai
+repo pour le projet principal Jedha
+
+>>>>>>> mlops_frederic
 # Jenedai - Plateforme MLOps de Prévision de Consommation Électrique
 
 ## 🎯 Objectif
@@ -310,8 +317,11 @@ huggingface-hub upload Jenedai/electricity-forecast model.pkl dataset.csv
 
 ---
 
+<<<<<<< HEAD
 ## 🤝 Contribution (A préciser)
 
+=======
+>>>>>>> mlops_frederic
 1. Fork le repo
 2. Créer une branche feature (`git checkout -b feature/amazing-feature`)
 3. Commit (`git commit -m 'Add feature'`)
@@ -324,14 +334,20 @@ huggingface-hub upload Jenedai/electricity-forecast model.pkl dataset.csv
 
 MIT
 
+<<<<<<< HEAD
 ---
 
+=======
+>>>>>>> mlops_frederic
 ## 📞 Support (A préciser)
 
 - Issues : GitHub Issues
 - Documentation : [mkdocs](http://localhost:8000) après `mkdocs serve`
+<<<<<<< HEAD
 
 ---
 
 **Dernière mise à jour** : Mars 2026
 >>>>>>> bb20d6e (Hugging Face Deployment Workflows)
+=======
+>>>>>>> mlops_frederic

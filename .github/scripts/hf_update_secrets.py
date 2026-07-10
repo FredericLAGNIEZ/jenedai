@@ -61,8 +61,12 @@ def get_service_secrets(service):
     service_secrets_map = {
         "Airflow": ["AIRFLOW_ADMIN_USER", "AIRFLOW_ADMIN_PASSWORD", "AIRFLOW__DATABASE__SQL_ALCHEMY_CONN", "AIRFLOW__WEBSERVER__SECRET_KEY"],
         "MLflow": ["MLFLOW_POSTGRES_URI", "MLFLOW_S3_ENDPOINT_URL"],
+<<<<<<< HEAD
         "JupyterLab": ["JUPYTER_TOKEN", "NEON_POSTGRES_URI"],
         "Streamlit": ["NEON_POSTGRES_URI"],
+=======
+        "JupyterLab": ["JUPYTER_TOKEN"],
+>>>>>>> mlops_frederic
         "n8n": ["N8N_ENCRYPTION_KEY", "DB_TYPE", "DB_POSTGRESDB_USER", "DB_POSTGRESDB_PASSWORD", "DB_POSTGRESDB_HOST", "DB_POSTGRESDB_PORT", "DB_POSTGRESDB_DATABASE"],
     }
     
