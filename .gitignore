@@ -245,3 +245,12 @@ __marimo__/
 # Never commit actual secrets to version control
 .github/scripts/secrets/secrets.json
 
+<<<<<<< HEAD
+=======
+
+#perso
+notebook/exploration.ipynb
+src/jenedai/ml/scripts/etl_flow.py
+src/jenedai/ml/scripts/main.py
+data/
+>>>>>>> 7ce6fc1 (Mes modifications locales)

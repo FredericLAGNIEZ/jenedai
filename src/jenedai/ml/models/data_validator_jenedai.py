@@ -66,7 +66,7 @@ class DataValidator:
 
     TARGET = 'total_energie_soutiree_wh'
     COL_DATE = "horodate"
-
+    
     # COLUMNS SCHEMA
     def check_valid_schema(self, df: pd.DataFrame) -> None:
         if Counter(df.columns) != Counter(self.SCHEMA_COLS):

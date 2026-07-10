@@ -1,11 +1,14 @@
-
-import os
 import logging
-from rich.logging import RichHandler, Console
-from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
-from datetime import datetime
-
+import os
 import sys
+
+from datetime import datetime
+from logging.handlers import (
+    RotatingFileHandler,
+    TimedRotatingFileHandler
+)
+from rich.logging import RichHandler
+from get_console import get_console
 from pathlib import Path
 
 # Chemin absolu vers le dossier contenant vos modules
@@ -13,7 +16,6 @@ chemin_module = Path(__file__).resolve().parent
 # Ajouter le chemin à sys.path
 sys.path.append(str(chemin_module))
 
-from get_console import get_console
 
 def configure_logging(
     path_logs: str,

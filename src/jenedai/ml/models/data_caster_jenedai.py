@@ -48,6 +48,7 @@ class DataCaster:
         'precipitation_sum'   
     ]
     
+
     STRING_COLS: list[str] = [
         "region",
         'ville'
@@ -60,7 +61,7 @@ class DataCaster:
         df = df.copy()
         for col in self.DATETIME_COLS:
             if col not in df.columns:
-                continue
+                continue                
             before = df[col].isna().sum()
             df[col] = pd.to_datetime(df[col], format="ISO8601", errors="coerce")
             new_nulls = df[col].isna().sum() - before

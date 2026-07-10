@@ -45,7 +45,7 @@ stateDiagram-v2
 - Installer uv pour plus de facilité
 
 ### 2. Activer l'environnement
-
+model_uri 
 ```bash
 source .venv/bin/activate
 ```
@@ -201,7 +201,17 @@ stateDiagram-v2
 
 ### Mlflow en local
 
+## Create a local db or usr defautl sqlite db
+
+sudo -u postgres createuser --superuser frederic
+sudo -u postgres psql -c "CREATE DATABASE mlflow OWNER frederic;"
+psql -d mlflow "ALTER USER frederic PASSWORD 'frederic'
+
+
+
 ## Start **Local** MLflow tracking server
+
+This CMD in a bash file allows you to start a local MLflow server.
 
 ```bash
 mlflow server \
@@ -210,6 +220,36 @@ mlflow server \
   --host 0.0.0.0 \
   --port 5000 \
   --gunicorn-opts "--timeout 180"
+```
+
+or
+
+Create a local db
+
+```bash
+sudo -u postgres createuser --superuser frederic
+sudo -u postgres psql -c "CREATE DATABASE mlflow OWNER frederic;"
+sudo -u postgres psql -c "ALTER USER frederic PASSWORD 'frederic';"
+```
+
+This CMD in a bash file allows you to start a local MLflow server.
+
+```bash
+mlflow server \
+  --backend-store-uri postgresql://frederic:frederic@localhost:5432/mlflow \
+  --default-artifact-root s3://jenedai/ \
+  --host 0.0.0.0 \
+  --port 5000
+  --gunicorn-opts "--timeout 180"
+```
+
+### Create a script
+
+Launch local MLflow server
+
+```bash
+chmod +x start_mlflow.sh
+./start_mlflow.sh
 ```
 
 > **Note:** The MLflow Model Registry requires metadata to be stored in a SQL database (`--backend-store-uri`). A flat file store will not work.
@@ -238,23 +278,23 @@ Call this before any `mlflow.log_*` or `mlflow.start_run()` call. It tells the M
 
 ---
 
-
 ## Access the MLflow UI
 
 Open your browser at:
 
-```
-http://127.0.0.1:5000
-```
+**Tracking URI :** `http://127.0.0.1:5000`
 
+
+Select your experience name.
 Only the **Default** experiment will be listed on first launch.
 
 ---
 
-
 ## Cloud MLflow Tracking Server
 
-### Start the server on Hugging Face with Docker
+### Start the server on Hugging Face with Dockerfile
+
+This CMD in Dockerfile allows you to start an MLflow server on HF space.
 
 ```bash
 CMD mlflow server --host 0.0.0.0 \
@@ -265,32 +305,50 @@ CMD mlflow server --host 0.0.0.0 \
   --cors-allowed-origins "*"
 ```
 
+Penser à réactiver le space MLFLOW sur Hugging Face
+
 ---
 
 ### Set the Tracking URI in your code
 
 ```python
-mlflow.set_tracking_uri("https://jenedai-mlflow.hf.space'")
+mlflow.set_tracking_uri("https://jenedai-mlflow.hf.space'") # URL du serveur MLflow
 ```
-
-URL du serveur MLflow
 
 
 ### Access the MLflow UI
 
 Access the MLflow UI a this url, select your experience name.
 
-
-
-
+---
 
 # Save model on MLflow Model Registry
 
+Mlflow registry is on PostgreSQL, either on SUPABSE if that works or in local : 
 
-Le registry MLflow est dans PostgreSQL, 
+
+
+
+
+
+
+
+"## Inital training
+
+Lauch db and mlflow
+Activer environnement
+
+./start_MLflow.sh
+
+
+
+
+
+
+
+
 
 # Nom artefact
-
 
 model_uri = f"runs:/{run_jenedai.info.run_id}/random_forest"
 mv = mlflow.register_model(model_uri, MODEL_NAME)
@@ -302,7 +360,6 @@ client.transition_model_version_stage(
     stage="Production"
 )
 ```
-
 
 PB de l'accès de mlflow au S3 de supabase
 

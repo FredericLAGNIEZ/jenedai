@@ -310,8 +310,6 @@ huggingface-hub upload Jenedai/electricity-forecast model.pkl dataset.csv
 
 ---
 
-
-
 1. Fork le repo
 2. Créer une branche feature (`git checkout -b feature/amazing-feature`)
 3. Commit (`git commit -m 'Add feature'`)
@@ -324,14 +322,7 @@ huggingface-hub upload Jenedai/electricity-forecast model.pkl dataset.csv
 
 MIT
 
-
-
 ## 📞 Support (A préciser)
 
 - Issues : GitHub Issues
 - Documentation : [mkdocs](http://localhost:8000) après `mkdocs serve`
-
-
-
-
-
