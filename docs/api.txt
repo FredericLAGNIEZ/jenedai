@@ -1,0 +1,37 @@
+n script utilise probablement l'URL de la page HF du Space (https://huggingface.co/spaces/Frederic-LAGNIEZ/api_jenedai) au lieu de l'URL directe du conteneur qui tourne (https://frederic-lagniez-api-jenedai.hf.space).
+Ce sont deux URLs différentes :
+
+https://huggingface.co/spaces/Frederic-LAGNIEZ/api_jenedai → c'est la page web HF qui affiche le Space (l'iframe, les infos, le README) — pas ton API.
+https://frederic-lagniez-api-jenedai.hf.space → c'est l'URL directe du conteneur Docker, celle qu'il faut utiliser pour taper /predict, /health, /docs.
+
+
+Start by cloning this repo by using:
+
+Add your SSH public key to clone this repo
+
+
+# Make sure your SSH key is properly setup in your user settings.
+# https://huggingface.co/settings/keys
+git clone git@hf.co:spaces/Frederic-LAGNIEZ/api_jenedai
+
+# Make sure the hf CLI is installed
+curl -LsSf https://hf.co/cli/install.sh | bash
+
+# Download the Space
+hf download Frederic-LAGNIEZ/api_jenedai --repo-type=space
+
+
+
+Add your SSH public key to clone this repo
+
+
+# Make sure your SSH key is properly setup in your user settings.
+# https://huggingface.co/settings/keys
+git clone git@hf.co:spaces/Frederic-LAGNIEZ/jenedai_predictor
+
+# Make sure the hf CLI is installed
+curl -LsSf https://hf.co/cli/install.sh | bash
+
+# Download the Space
+hf download Frederic-LAGNIEZ/jenedai_predictor --repo-type=space
+

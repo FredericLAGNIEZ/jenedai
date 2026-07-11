@@ -1,17 +1,17 @@
+import os
 import sys
 from pathlib import Path
-import os
-import numpy as np
+
+import pandas as pd
 
 # Imports légers
-from prefect import flow, task, get_run_logger
-from prefect.tasks import task_input_hash
-from datetime import timedelta
-import pandas as pd
+from prefect import flow, get_run_logger
+
 
 def _setup():
     """Initialisation unique au process principal."""
     from dotenv import load_dotenv
+
     load_dotenv(override=True)
 
     src_path = Path(__file__).parents[3]
@@ -20,17 +20,25 @@ def _setup():
 
     print("Python:", sys.executable)
 
+
 FEATURES = [
-    "secteur_activite", "plage_de_puissance_souscrite", "nb_points_soutirage",
-    "ville", "en_vacances",  # ← une seule colonne 0 ou 1
-    "temperature_2m_mean", "relative_humidity_mean", "precipitation_sum",
-    "month", "jour_semaine"
+    "secteur_activite",
+    "plage_de_puissance_souscrite",
+    "nb_points_soutirage",
+    "ville",
+    "en_vacances",  # ← une seule colonne 0 ou 1
+    "temperature_2m_mean",
+    "relative_humidity_mean",
+    "precipitation_sum",
+    "month",
+    "jour_semaine",
 ]
 
 TARGET = "total_energie_soutiree_wh"
 #############################################################################################
 # FLOW
 #############################################################################################
+
 
 @flow(
     name="consume_energy_predict",
@@ -41,13 +49,14 @@ TARGET = "total_energie_soutiree_wh"
 def predict():
     """Main Pipeline entry"""
     import mlflow
-    from jenedai.ml.models.energy_predictor import EnergyPredictor
     from constants import MODEL_NAME
+
+    from jenedai.ml.models.energy_predictor import EnergyPredictor
 
     logger = get_run_logger()
 
     # Chargement du modèle MLflow
-    mlflow.set_tracking_uri(os.environ['MLFLOW_TRACKING_URI'])
+    mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
     my_clf = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}/7")
     logger.info("✅ Model loaded")
 
@@ -64,6 +73,7 @@ def predict():
     print(f"🤖 Prédit  : {float(predicted[0]):,.0f} Wh")
     return float(predicted[0])
 
+
 #     try:
 #         data_folder = Path("./data")
 #         data_path = data_folder / "extract_cvs_engis_dataset.csv"
@@ -72,7 +82,7 @@ def predict():
 #             logger.info(f"data_path exists: {data_path.exists()}")
 #             logger.info(f"CSV size: {os.path.getsize(data_path) if data_path.exists() else 'NOT FOUND'}")
 #         else:
-#             logger.info(f"Contenu du dossier data: {list(Path(os.getcwd()).glob('data/*'))}") 
+#             logger.info(f"Contenu du dossier data: {list(Path(os.getcwd()).glob('data/*'))}")
 
 #         logger.info("Extracting data from source...")
 #         df_raw = load_data(logger, data_path)
@@ -80,7 +90,7 @@ def predict():
 #     except Exception as e:
 #         msg = "Loading error on Data Pipeline"
 #         logger.error(f" {msg} : {e}")
-#         return 
+#         return
 
 
 # # Remplacer tout le pipeline validate/cast/transform par :

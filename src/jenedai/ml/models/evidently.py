@@ -1,45 +1,36 @@
-import pandas as pd
-# Imports légers
-from prefect import task, get_run_logger
-from evidently import Dataset
-from evidently import DataDefinition
-from evidently import Report
-from evidently.presets import DataDriftPreset
-from evidently.metrics import ValueDrift
-import warnings
 import smtplib
+import warnings
 from email.message import EmailMessage
 
+import pandas as pd
+from evidently import DataDefinition, Dataset, Report
+from evidently.metrics import ValueDrift
+
+# Imports légers
+from prefect import get_run_logger, task
 
 
 ## MONITORING DATA
-@task(
-name="monitor",
-retries=1,
-retry_delay_seconds=30,
-tags=["monitor"])
-def monitor_task(reference: pd.DataFrame,  production: pd.DataFrame) -> pd.DataFrame|None:
+@task(name="monitor", retries=1, retry_delay_seconds=30, tags=["monitor"])
+def monitor_task(reference: pd.DataFrame, production: pd.DataFrame) -> pd.DataFrame | None:
     """Surveillance des données de production par rapport aux données de référence"""
     # Ignore only RuntimeWarnings
-    warnings.simplefilter('ignore', RuntimeWarning)
+    warnings.simplefilter("ignore", RuntimeWarning)
 
     logger = get_run_logger()
 
-    try:     
-
+    try:
         parsed_reference = Dataset.from_pandas(reference, data_definition=DataDefinition())
         parsed_production = Dataset.from_pandas(production, data_definition=DataDefinition())
 
         # report = Report([DataDriftPreset()])
         # data_stability = report.run(current_data=parsed_production, reference_data=parsed_reference)
-        
+
         # data_drift_dict = data_stability.dict()
 
         COLUMNS_TO_MONITOR = ["total_energie_soutiree_wh", "nb_points_soutirage"]
 
-        report = Report(
-            metrics=[ValueDrift(column=col) for col in COLUMNS_TO_MONITOR]
-        )
+        report = Report(metrics=[ValueDrift(column=col) for col in COLUMNS_TO_MONITOR])
 
         data_stability = report.run(current_data=parsed_production, reference_data=parsed_reference)
 
@@ -54,7 +45,9 @@ def monitor_task(reference: pd.DataFrame,  production: pd.DataFrame) -> pd.DataF
             msg = EmailMessage()
             msg["From"] = "test@example.com"
             msg["To"] = "destinataire@example.com"
-            msg["Subject"] = f"Alerte! Drift détecté sur {len(drift_summary['drifted_columns'])} colonne(s)"
+            msg["Subject"] = (
+                f"Alerte! Drift détecté sur {len(drift_summary['drifted_columns'])} colonne(s)"
+            )
 
             body_lines = ["Colonnes en drift :\n"]
             for r in drift_summary["drifted_columns"]:

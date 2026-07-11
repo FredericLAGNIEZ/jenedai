@@ -1,43 +1,35 @@
+import os
 import sys
 from pathlib import Path
-import os
-from sqlalchemy import create_engine
-import psycopg2
-import traceback
+from datetime import timedelta
+import pandas as pd
+from dotenv import load_dotenv
+from prefect import flow, get_run_logger, task
+from prefect.tasks import task_input_hash
+from jenedai.ml.models.data_caster_jenedai import DataCaster
+from jenedai.ml.models.data_transformer_jenedai import Transformer
+from jenedai.ml.models.data_validator_jenedai import DataValidator
+from jenedai.ml.models.load_data_jenedai import load_data
+from jenedai.ml.utils.get_console import get_console
+from jenedai.ml.utils.logs import configure_logging
 
 # src/jenedai/ml/scripts/test_prefect.py → remonte 3 niveaux → src/
 src_path = Path(__file__).parents[3]
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
-from prefect import flow, task, get_run_logger
-from prefect.tasks import task_input_hash
-# from prefect.blocks.notifications import SlackWebhook  # optionnel
-from datetime import timedelta
-import pandas as pd
-from prefect.settings import PREFECT_API_URL
-from jenedai.ml.utils.logs import configure_logging
-from jenedai.ml.utils.get_console import get_console
-from jenedai.ml.models.data_validator_jenedai import DataValidator
-from jenedai.ml.models.data_caster_jenedai import DataCaster
-from jenedai.ml.models.data_transformer_jenedai import Transformer
-from jenedai.ml.models.load_data_jenedai import load_data
-from prefect.runner.storage import GitRepository
-
-# from prefect.settings import PREFECT_API_URL
-# import os
-
-from dotenv import load_dotenv
 load_dotenv()
 
+
 @task(
-name="load",
-retries=1,
-retry_delay_seconds=30,
-cache_key_fn=task_input_hash,
-cache_expiration=timedelta(hours=1),
-tags=["load"])
-def load_task(data_path: str) -> pd.DataFrame|None:
+    name="load",
+    retries=1,
+    retry_delay_seconds=30,
+    cache_key_fn=task_input_hash,
+    cache_expiration=timedelta(hours=1),
+    tags=["load"],
+)
+def load_task(data_path: str) -> pd.DataFrame | None:
     logger = get_run_logger()
     try:
         logger.info("Extracting data from source...")
@@ -51,13 +43,14 @@ def load_task(data_path: str) -> pd.DataFrame|None:
 
 
 @task(
-name="validate",
-retries=1,
-retry_delay_seconds=30,
-cache_key_fn=task_input_hash,
-cache_expiration=timedelta(hours=1),
-tags=["validation"])
-def validate_task(df: pd.DataFrame) -> pd.DataFrame|None:
+    name="validate",
+    retries=1,
+    retry_delay_seconds=30,
+    cache_key_fn=task_input_hash,
+    cache_expiration=timedelta(hours=1),
+    tags=["validation"],
+)
+def validate_task(df: pd.DataFrame) -> pd.DataFrame | None:
     logger = get_run_logger()
     try:
         logger.info(f"Running data quality checks on {len(df)} rows...")
@@ -72,13 +65,14 @@ def validate_task(df: pd.DataFrame) -> pd.DataFrame|None:
 
 
 @task(
-name="cast",
-retries=1,
-retry_delay_seconds=30,
-cache_key_fn=task_input_hash,
-cache_expiration=timedelta(hours=1),
-tags=["cast"])
-def cast_task(df: pd.DataFrame) -> pd.DataFrame|None:
+    name="cast",
+    retries=1,
+    retry_delay_seconds=30,
+    cache_key_fn=task_input_hash,
+    cache_expiration=timedelta(hours=1),
+    tags=["cast"],
+)
+def cast_task(df: pd.DataFrame) -> pd.DataFrame | None:
     logger = get_run_logger()
     try:
         logger.info("Running cast types on df...")
@@ -92,15 +86,15 @@ def cast_task(df: pd.DataFrame) -> pd.DataFrame|None:
         return None
 
 
-
 @task(
-name="transform",
-retries=1,
-retry_delay_seconds=30,
-cache_key_fn=task_input_hash,
-cache_expiration=timedelta(hours=1),
-tags=["transformation"])
-def transform_task(df: pd.DataFrame) -> pd.DataFrame|None:
+    name="transform",
+    retries=1,
+    retry_delay_seconds=30,
+    cache_key_fn=task_input_hash,
+    cache_expiration=timedelta(hours=1),
+    tags=["transformation"],
+)
+def transform_task(df: pd.DataFrame) -> pd.DataFrame | None:
     logger = get_run_logger()
     try:
         logger.info("Applying transformations...")
@@ -115,31 +109,30 @@ def transform_task(df: pd.DataFrame) -> pd.DataFrame|None:
 
 
 @flow(
-name="consume_energy_etl",
-description="ETL pipeline for energy consumption data.",
-log_prints=True,
-timeout_seconds=3600,  # 1h max — évite les runs bloqués
+    name="consume_energy_etl",
+    description="ETL pipeline for energy consumption data.",
+    log_prints=True,
+    timeout_seconds=3600,  # 1h max — évite les runs bloqués
 )
-def etl():   
+def etl():
     """
     Point d'entrée principal des pipelines
     """
     # ✅ Chemins définis en premier dans le flow
     data_folder = Path("./data")
-    #data_folder = Path(__file__).parents[3] / "data"  # ✅ absolu
+    # data_folder = Path(__file__).parents[3] / "data"  # ✅ absolu
     data_path = data_folder / "extract_cvs_engis_dataset.csv"
-    
+
     logs_folder = Path(__file__).parents[3] / "logs"
-    
+
     print(f"data_path: {data_path}")
     print(f"exists: {data_path.exists()}")
-
 
     print("Python:", sys.executable)
     print("sys.path:", sys.path)
     print("cwd:", sys.path)
     print("PYTHONPATH:", os.environ.get("PYTHONPATH", "NOT SET"))
-    
+
     print(f"CWD: {os.getcwd()}")
     print(f"__file__: {__file__}")
     print(f"data_path exists: {data_path.exists()}")
@@ -154,15 +147,15 @@ def etl():
     console.print("\n[bold cyan]" + "=" * 60 + "[/bold cyan]")
     console.print("[bold cyan]🔍 ML Enedis [/bold cyan]")
     console.print("[bold cyan]" + "=" * 60 + "[/bold cyan]\n")
-    
+
     # ✅ Système de logging
     logger = configure_logging(
         path_logs=logs_folder,
-        name=f"ML Enedis",
+        name="ML Enedis",
         profile="basic",
     )
     logger.info("Système de logs configuré")
-         
+
     # Data_pipeline : loading
     try:
         console.print(f"New new data_path : {data_path}")
@@ -177,7 +170,7 @@ def etl():
     except Exception as e:
         msg = "Data Loading Pipeline Error "
         logger.error(f" ❌ {msg} : {e}")
-        raise 
+        raise
 
     # Data_pipeline : validation
     try:
@@ -192,9 +185,8 @@ def etl():
     except Exception as e:
         msg = "Data Validation Pipeline Error "
         logger.error(f" ❌ {msg} : {e}")
-        raise 
+        raise
 
-    
     # Data_pipeline : cast
     try:
         console.print("Cast données...")
@@ -208,8 +200,7 @@ def etl():
     except Exception as e:
         msg = "Data Cast Pipeline Error "
         logger.error(f" ❌ {msg} : {e}")
-        raise 
-
+        raise
 
     # Data_pipeline : transformation
     try:
@@ -224,7 +215,7 @@ def etl():
     except Exception as e:
         msg = "Data Transformation Pipeline Error "
         logger.error(f" ❌ {msg} : {e}")
-        raise 
+        raise
 
 
 # def create_postgres_table():
@@ -242,7 +233,7 @@ def etl():
 
 #     # create cursor object to execute SQL
 #     cur = conn.cursor()
-    
+
 #     # execute query to create the table
 #     create_table_query = '''
 #         CREATE TABLE IF NOT EXISTS cpd_incidents (
@@ -256,7 +247,7 @@ def etl():
 #             year INTEGER,
 #             month INTEGER,
 #             day INTEGER,
-#             hour INTEGER, 
+#             hour INTEGER,
 #             minute INTEGER,
 #             second INTEGER
 #         )
@@ -273,7 +264,7 @@ def etl():
 # @task
 # def load_into_postgres(df):
 #     '''
-#     Loads the transformed data passed in as a DataFrame 
+#     Loads the transformed data passed in as a DataFrame
 #     into the 'cpd_incidents' table in our Postgres instance.
 #     '''
 #     # create table to insert data into as necessary
@@ -281,23 +272,23 @@ def etl():
 
 #     # create Engine object to connect to DB
 #     engine = create_engine())
-        
+
 #     # # insert data into Postgres DB into the 'cpd_incidents' table
 #     # df.to_sql('cpd_incidents', engine, if_exists='replace')
 
 
-
 if __name__ == "__main__":
-    try:            
-        #prefect cloud
-        #etl()
-        #local deployement
+    try:
+        # prefect cloud
+        # etl()
+        # local deployement
         etl.serve(
-             name="consume-energy",
-             cron="*/1 * * * *",          # tous les jours à 6h UTC
-             tags=["energy", "etl"],
-             description="Daily energy consumption ETL and ML.",
-             pause_on_shutdown=False)
+            name="consume-energy",
+            cron="*/1 * * * *",  # tous les jours à 6h UTC
+            tags=["energy", "etl"],
+            description="Daily energy consumption ETL and ML.",
+            pause_on_shutdown=False,
+        )
 
     except KeyboardInterrupt:
         print("\n\n⚠️  Interruption utilisateur")
@@ -307,7 +298,7 @@ if __name__ == "__main__":
 
 # Deploiement directement dans le script python
 #  if __name__ == "__main__":
-#     try:            
+#     try:
 #         etl.deploy(
 #             name="consume-energy",
 #             work_pool_name="energy-pool",   # ⚠️ doit exister sur ton serveur Prefect
@@ -317,7 +308,7 @@ if __name__ == "__main__":
 #             source=GitRepository(
 #                 url="https://github.com/Jenedai/jenedai",
 #                 branch="mlops_frederic",
-#             ))            
+#             ))
 #     except KeyboardInterrupt:
 #         print("\n\n⚠️  Interruption utilisateur")
 #     except Exception as e:

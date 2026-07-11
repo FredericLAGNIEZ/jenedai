@@ -1,0 +1,23 @@
+artifact_path: /media/frederic/DD_Stockage_2To/main_code/jedha/Jenedai/mlruns/1/models/m-85174e7d8a4a498bac842a419b29e98c/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.14
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+    skops_trusted_types: null
+mlflow_version: 3.11.1
+model_id: m-85174e7d8a4a498bac842a419b29e98c
+model_size_bytes: 8304329
+model_uuid: m-85174e7d8a4a498bac842a419b29e98c
+prompts: null
+run_id: 83d7cd552e844f9189a03205a37501bf
+utc_time_created: '2026-05-03 14:36:31.197061'

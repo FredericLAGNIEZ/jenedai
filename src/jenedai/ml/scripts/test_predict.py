@@ -1,12 +1,14 @@
+import os
 import sys
 from pathlib import Path
-import os
-from datetime import timedelta
+
 import pandas as pd
+
 
 def _setup():
     """Initialisation unique au process principal."""
     from dotenv import load_dotenv
+
     load_dotenv(override=True)
 
     src_path = Path(__file__).parents[3]
@@ -15,12 +17,21 @@ def _setup():
 
     print("Python:", sys.executable)
 
+
 _setup()
 
 FEATURES = [
-    "secteur_activite", "plage_de_puissance_souscrite", "nb_points_soutirage",
-    "ville", "en_vacances","temperature_2m_mean", "relative_humidity_mean", "precipitation_sum",
-    "month", "jour_semaine" ]
+    "secteur_activite",
+    "plage_de_puissance_souscrite",
+    "nb_points_soutirage",
+    "ville",
+    "en_vacances",
+    "temperature_2m_mean",
+    "relative_humidity_mean",
+    "precipitation_sum",
+    "month",
+    "jour_semaine",
+]
 
 TARGET = "total_energie_soutiree_wh"
 
@@ -33,18 +44,19 @@ os.environ["AWS_SECRET_ACCESS_KEY"] = os.environ.get("AWS_SECRET_ACCESS_KEY", ""
 # FLOW
 #############################################################################################
 
+
 def predict():
     """Main Pipeline entry"""
     import mlflow
-    from jenedai.ml.models.energy_predictor import EnergyPredictor
     from constants import MODEL_NAME
 
-    # Charger le pipeline complet (préprocessor + modèle)
-    mlflow.set_tracking_uri(os.environ['MLFLOW_TRACKING_URI'])
-    pipeline = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}@champion")
-    #pipeline = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}/15")  # Charge le pipeline complet
-    print("✅ Pipeline (preprocessor + model) loaded")
+    from jenedai.ml.models.energy_predictor import EnergyPredictor
 
+    # Charger le pipeline complet (préprocessor + modèle)
+    mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
+    pipeline = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}@champion")
+    # pipeline = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}/15")  # Charge le pipeline complet
+    print("✅ Pipeline (preprocessor + model) loaded")
 
     sklearn_pipeline = pipeline._model_impl.sklearn_model
     preprocessor = sklearn_pipeline.named_steps["Preprocessing"]
@@ -54,22 +66,24 @@ def predict():
 
     # # for col, cats in zip(categorical_cols, encoder.categories_):
     # #     print(f"{col}: {list(cats)}")
-    
 
-    # Associer chaque colonne catégorielle à ses catégories
-    categories_by_col = dict(zip(categorical_cols, encoder.categories_))
+    # # Associer chaque colonne catégorielle à ses catégories
+    # categories_by_col = dict(zip(categorical_cols, encoder.categories_))
 
-    # Isoler celles de "ville"
-    model_villes = list(categories_by_col["ville"])
+    # # Isoler celles de "ville"
+    # model_villes = list(categories_by_col["ville"])
 
     print("categorical_cols:", categorical_cols)
-    print("Colonne à l'index 3 :", categorical_cols[3] if len(categorical_cols) > 3 else "n'existe pas")
+    print(
+        "Colonne à l'index 3 :",
+        categorical_cols[3] if len(categorical_cols) > 3 else "n'existe pas",
+    )
 
-        # Générer un échantillon synthétique avec EnergyPredictor
+    # Générer un échantillon synthétique avec EnergyPredictor
     predictor = EnergyPredictor()  # On utilise uniquement _generate_random_sample()
     sample = predictor._generate_random_sample()
 
-    print ("sample : ", sample)
+    print("sample : ", sample)
 
     # Convertir l'échantillon en DataFrame avec les bonnes colonnes
     sample_df = pd.DataFrame([sample])[predictor.FEATURES]
@@ -80,6 +94,7 @@ def predict():
 
     return float(predicted[0])
 
+
 if __name__ == "__main__":
     try:
         predict()
@@ -88,7 +103,6 @@ if __name__ == "__main__":
         print("\n\n⚠️  Interruption utilisateur")
     except Exception as e:
         print(f"\n❌ Erreur fatale: {e}")
-
 
 
 ## TEsts
@@ -115,16 +129,13 @@ if __name__ == "__main__":
 
 #     logger.info("✅ Model and preprocessor loaded")
 
-    # ## Initialiser le prédicteur
-    # predictor = EnergyPredictor()
-    # predictor.model = model  # Chargement modèle
-    # predictor.preprocessor = preprocessor
+# ## Initialiser le prédicteur
+# predictor = EnergyPredictor()
+# predictor.model = model  # Chargement modèle
+# predictor.preprocessor = preprocessor
 
 
-   # # Old way : Chargement du modèle MLflow (fonctionne)
-    # mlflow.set_tracking_uri(os.environ['MLFLOW_TRACKING_URI'])
-    # model = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}/7")
-    # logger.info("✅ Model loaded")
-
-
-
+# # Old way : Chargement du modèle MLflow (fonctionne)
+# mlflow.set_tracking_uri(os.environ['MLFLOW_TRACKING_URI'])
+# model = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}/7")
+# logger.info("✅ Model loaded")

@@ -1,0 +1,18 @@
+Je peux charcher un CSV pour l'entrainement depuis le local (acile) ou mon S3
+J'ai déja configuré mon s3, je vais voir la marche à suivre pour déposer le fichier.
+Je le fais via le notebook
+Cela semble ok
+Mais dois extraire une fichier de ma base de donnée plutot?
+Ou je vois ca dans une deuxieme étape
+IL me dit que c'est trop gros....
+J'accès au régles de mon S3 dans le fichier garage.toml
+J'ai ajouté client_max_body_size 500M;  # Ajoute cette ligne dan sla config ngniw ca a marché....
+En pratique il y a un découpage par chunck; je ne trouve pas ile fichier mais il semble y etre....
+
+Veirife le S en local en bash
+
+export AWS_ACCESS_KEY_ID="GKc09b7d0b9648439df630263f"
+export AWS_SECRET_ACCESS_KEY="12cb8fdb0878dd3abe634e3ec7706022a8a18afc7b3b3283c0070f5272f20988"
+
+aws s3 ls   --endpoint-url https://garage.learndatascience.cloud   --region garage2026-04-05 14:30:26 jenedai
+

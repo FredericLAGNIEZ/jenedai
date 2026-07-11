@@ -1,22 +1,21 @@
+import warnings
+from typing import Dict, List, Optional, Union
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy import stats
 from sklearn.metrics import (
     accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score,
-    mean_squared_error,
-    mean_absolute_error,
-    r2_score,
     confusion_matrix,
-    classification_report,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+    roc_auc_score,
 )
-from scipy import stats
-import matplotlib.pyplot as plt
-import seaborn as sns
-from typing import Dict, List, Optional, Union
-import warnings
 
 warnings.filterwarnings("ignore")
 
@@ -60,9 +59,7 @@ class ModelPerformanceDebugger:
             P-value threshold for statistical tests
         """
         self.model = model
-        self.X_test = (
-            X_test if isinstance(X_test, pd.DataFrame) else pd.DataFrame(X_test)
-        )
+        self.X_test = X_test if isinstance(X_test, pd.DataFrame) else pd.DataFrame(X_test)
         self.y_test = np.array(y_test)
         self.y_pred = np.array(y_pred)
         self.y_pred_proba = np.array(y_pred_proba) if y_pred_proba is not None else None
@@ -161,7 +158,7 @@ class ModelPerformanceDebugger:
                         segment_metrics["n_samples"] = mask.sum()
                         segments.append(segment_metrics)
 
-            except Exception as e:
+            except Exception:
                 # Skip features that cause errors
                 continue
 
@@ -245,7 +242,7 @@ class ModelPerformanceDebugger:
                     if psi > 0.2:
                         drift_results["drifted_features"].append(col)
 
-            except Exception as e:
+            except Exception:
                 continue
 
         drift_results["drift_detected"] = len(drift_results["drifted_features"]) > 0
@@ -260,9 +257,7 @@ class ModelPerformanceDebugger:
                 feature_names = self.X_test.columns
 
                 importance_dict = dict(zip(feature_names, importances))
-                return dict(
-                    sorted(importance_dict.items(), key=lambda x: x[1], reverse=True)
-                )
+                return dict(sorted(importance_dict.items(), key=lambda x: x[1], reverse=True))
 
             elif hasattr(self.model, "coef_"):
                 coefficients = np.abs(self.model.coef_)
@@ -271,9 +266,7 @@ class ModelPerformanceDebugger:
                 feature_names = self.X_test.columns
 
                 importance_dict = dict(zip(feature_names, coefficients))
-                return dict(
-                    sorted(importance_dict.items(), key=lambda x: x[1], reverse=True)
-                )
+                return dict(sorted(importance_dict.items(), key=lambda x: x[1], reverse=True))
         except:
             pass
 
@@ -347,9 +340,7 @@ class ModelPerformanceDebugger:
 
         return report
 
-    def plot_feature_performance_breakdown(
-        self, top_n: int = 10, save_path: Optional[str] = None
-    ):
+    def plot_feature_performance_breakdown(self, top_n: int = 10, save_path: Optional[str] = None):
         """Plot performance breakdown by top features."""
         if not self.segment_analysis:
             print("Run run_full_diagnosis() first.")
@@ -358,9 +349,7 @@ class ModelPerformanceDebugger:
         # Get top features by variance in performance
         feature_variance = {}
         for feature in self.X_test.columns:
-            feature_segments = [
-                s for s in self.segment_analysis if s["feature"] == feature
-            ]
+            feature_segments = [s for s in self.segment_analysis if s["feature"] == feature]
             if not feature_segments:
                 continue
 
@@ -371,9 +360,7 @@ class ModelPerformanceDebugger:
 
             feature_variance[feature] = np.var(scores)
 
-        top_features = sorted(
-            feature_variance.items(), key=lambda x: x[1], reverse=True
-        )[:top_n]
+        top_features = sorted(feature_variance.items(), key=lambda x: x[1], reverse=True)[:top_n]
 
         # Plot
         fig, axes = plt.subplots(
@@ -383,9 +370,7 @@ class ModelPerformanceDebugger:
             axes = [axes]
 
         for idx, (feature, _) in enumerate(top_features[:5]):
-            feature_segments = [
-                s for s in self.segment_analysis if s["feature"] == feature
-            ]
+            feature_segments = [s for s in self.segment_analysis if s["feature"] == feature]
 
             values = [s["value"] for s in feature_segments]
             if self.task_type == "classification":
@@ -421,19 +406,19 @@ class ModelPerformanceDebugger:
 
     def export_html_report(self, filepath: str):
         """Export comprehensive HTML report."""
-        html_content = f"""
+        html_content = """
         <html>
         <head>
             <title>Model Performance Debug Report</title>
             <style>
-                body {{ font-family: Arial, sans-serif; margin: 20px; }}
-                h1 {{ color: #333; }}
-                h2 {{ color: #666; margin-top: 30px; }}
-                table {{ border-collapse: collapse; width: 100%; margin: 20px 0; }}
-                th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-                th {{ background-color: #4CAF50; color: white; }}
-                .warning {{ background-color: #fff3cd; padding: 10px; margin: 10px 0; border-left: 4px solid #ffc107; }}
-                .metric {{ display: inline-block; margin: 10px; padding: 15px; background-color: #f8f9fa; border-radius: 5px; }}
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                h1 { color: #333; }
+                h2 { color: #666; margin-top: 30px; }
+                table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #4CAF50; color: white; }
+                .warning { background-color: #fff3cd; padding: 10px; margin: 10px 0; border-left: 4px solid #ffc107; }
+                .metric { display: inline-block; margin: 10px; padding: 15px; background-color: #f8f9fa; border-radius: 5px; }
             </style>
         </head>
         <body>
@@ -476,18 +461,12 @@ class ModelPerformanceDebugger:
         # Get problematic segments
         if self.task_type == "classification":
             overall_metric = self.overall_metrics["accuracy"]
-            problematic = [
-                s for s in self.segment_analysis if s["accuracy"] < overall_metric - 0.1
-            ]
+            problematic = [s for s in self.segment_analysis if s["accuracy"] < overall_metric - 0.1]
         else:
             overall_metric = self.overall_metrics["mae"]
-            problematic = [
-                s for s in self.segment_analysis if s["mae"] > overall_metric * 1.2
-            ]
+            problematic = [s for s in self.segment_analysis if s["mae"] > overall_metric * 1.2]
 
-        for segment in sorted(
-            problematic, key=lambda x: x.get("accuracy", x.get("mae"))
-        )[:20]:
+        for segment in sorted(problematic, key=lambda x: x.get("accuracy", x.get("mae")))[:20]:
             html_content += f"""
             <tr>
                 <td>{segment["feature"]}</td>
@@ -496,11 +475,11 @@ class ModelPerformanceDebugger:
             """
 
             if self.task_type == "classification":
-                html_content += f"<td>{segment['accuracy']:.4f}</td><td>{segment['f1_score']:.4f}</td>"
-            else:
                 html_content += (
-                    f"<td>{segment['mae']:.4f}</td><td>{segment['rmse']:.4f}</td>"
+                    f"<td>{segment['accuracy']:.4f}</td><td>{segment['f1_score']:.4f}</td>"
                 )
+            else:
+                html_content += f"<td>{segment['mae']:.4f}</td><td>{segment['rmse']:.4f}</td>"
 
             html_content += "</tr>"
 

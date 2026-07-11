@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 def find_project_directory():
     """
     Détermine le répertoire du projet.

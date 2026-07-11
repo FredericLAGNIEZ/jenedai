@@ -1,7 +1,5 @@
-
-
 import pandas as pd
-from prefect import task
+
 
 class DataCaster:
     """
@@ -12,49 +10,49 @@ class DataCaster:
         4. Boolean columns  → bool (0/1 integers)
     """
 
-
-    SCHEMA_COLS = frozenset(['secteur_activite',
-        'jour_max_du_mois_0_1',
-        'horodate',
-        'semaine_max_du_mois_0_1',
-        'plage_de_puissance_souscrite',
-        'region',
-        'total_energie_soutiree_wh',
-        'nb_points_soutirage',
-        'date',
-        'ville',
-        'lat',
-        'lon',
-        'zone_a',
-        'zone_b',
-        'zone_c',
-        'vacances_zone_a',
-        'vacances_zone_b',
-        'vacances_zone_c',
-        'nom_vacances',
-        'temperature_2m_mean',
-        'relative_humidity_mean',
-        'precipitation_sum'
-    ])
+    SCHEMA_COLS = frozenset(
+        [
+            "secteur_activite",
+            "jour_max_du_mois_0_1",
+            "horodate",
+            "semaine_max_du_mois_0_1",
+            "plage_de_puissance_souscrite",
+            "region",
+            "total_energie_soutiree_wh",
+            "nb_points_soutirage",
+            "date",
+            "ville",
+            "lat",
+            "lon",
+            "zone_a",
+            "zone_b",
+            "zone_c",
+            "vacances_zone_a",
+            "vacances_zone_b",
+            "vacances_zone_c",
+            "nom_vacances",
+            "temperature_2m_mean",
+            "relative_humidity_mean",
+            "precipitation_sum",
+        ]
+    )
 
     DATETIME_COLS: list[str] = [
-        'horodate',
+        "horodate",
     ]
     NUMERIC_COLS: list[str] = [
         "nb_points_soutirage",
         "total_energie_soutiree_wh",
-        'temperature_2m_mean',
-        'relative_humidity_mean',
-        'precipitation_sum'   
+        "temperature_2m_mean",
+        "relative_humidity_mean",
+        "precipitation_sum",
     ]
-    
 
     STRING_COLS: list[str] = [
         "region",
-        'ville'
-        "profil",
-        'plage_de_puissance_souscrite',
-        'secteur_activite',
+        "villeprofil",
+        "plage_de_puissance_souscrite",
+        "secteur_activite",
     ]
 
     def cast_datetime(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -66,7 +64,9 @@ class DataCaster:
             df[col] = pd.to_datetime(df[col], format="ISO8601", errors="coerce")
             new_nulls = df[col].isna().sum() - before
             if new_nulls > 0:
-                print(f"[WARNING] '{col}': {new_nulls} value(s) could not be parsed as datetime → NaT.")
+                print(
+                    f"[WARNING] '{col}': {new_nulls} value(s) could not be parsed as datetime → NaT."
+                )
         return df
 
     def cast_numeric(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -78,7 +78,9 @@ class DataCaster:
             df[col] = pd.to_numeric(df[col], errors="coerce")
             new_nulls = df[col].isna().sum() - before
             if new_nulls > 0:
-                print(f"[WARNING] '{col}': {new_nulls} value(s) could not be cast to numeric → NaN.")
+                print(
+                    f"[WARNING] '{col}': {new_nulls} value(s) could not be cast to numeric → NaN."
+                )
         return df
 
     def cast_string(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -100,7 +102,7 @@ class DataCaster:
                 print(f"[WARNING] '{col}': could not be cast to boolean → skipped. ({e})")
         return df
 
-    #@task
+    # @task
     def cast(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Steps:

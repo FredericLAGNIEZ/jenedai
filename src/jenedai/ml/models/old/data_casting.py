@@ -1,4 +1,3 @@
-from datetime import datetime
 import pandas as pd
 from prefect import task
 
@@ -28,7 +27,7 @@ class DataCaster:
         "Secteur activité",
     ]
     DATETIME_COLS: list[str] = ["Horodate"]
-    BOOLEAN_COLS: list[str] = []   # TODO
+    BOOLEAN_COLS: list[str] = []  # TODO
     CATEGORY_COLS: list[str] = []  # TODO
 
     # ------------------------------------------------------------------
@@ -46,7 +45,9 @@ class DataCaster:
             after = df[col].isna().sum()
             new_nulls = after - before
             if new_nulls > 0:
-                print(f"[WARNING] '{col}': {new_nulls} value(s) could not be cast to numeric → NaN.")
+                print(
+                    f"[WARNING] '{col}': {new_nulls} value(s) could not be cast to numeric → NaN."
+                )
         return df
 
     def cast_string(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -73,7 +74,9 @@ class DataCaster:
             after = df[col].isna().sum()
             new_nulls = after - before
             if new_nulls > 0:
-                print(f"[WARNING] '{col}': {new_nulls} value(s) could not be parsed as datetime → NaT.")
+                print(
+                    f"[WARNING] '{col}': {new_nulls} value(s) could not be parsed as datetime → NaT."
+                )
         return df
 
     def cast_boolean(self, df: pd.DataFrame) -> pd.DataFrame:

@@ -1,5 +1,6 @@
-from datetime import datetime
 from collections import Counter
+from datetime import datetime
+
 import pandas as pd
 from prefect import task
 
@@ -25,7 +26,6 @@ class DataValidator:
             "Nb points soutirage",
             "Total énergie soutirée",
             "Courbe Moyenne n°1",
-
         ]  # TODO
     )
     REQUIRED_COLS = ["date_time", "id", "type", "location"]  # TODO
@@ -39,9 +39,7 @@ class DataValidator:
         if Counter(df.columns) != Counter(self.SCHEMA_COLS):
             missing = self.SCHEMA_COLS - set(df.columns)
             extra = set(df.columns) - self.SCHEMA_COLS
-            raise ValueError(
-                f"Schema mismatch — missing: {missing or '∅'}, extra: {extra or '∅'}"
-            )
+            raise ValueError(f"Schema mismatch — missing: {missing or '∅'}, extra: {extra or '∅'}")
 
     def coerce_numeric_id(self, df: pd.DataFrame) -> pd.DataFrame:
         """

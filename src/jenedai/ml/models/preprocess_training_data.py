@@ -22,17 +22,22 @@ logger = logging.getLogger(__name__)
 # ── Schéma attendu ─────────────────────────────────────────────────────────────
 
 BOOL_COLS = [
-    "zone_a", "zone_b", "zone_c",
-    "vacances_zone_a", "vacances_zone_b", "vacances_zone_c",
+    "zone_a",
+    "zone_b",
+    "zone_c",
+    "vacances_zone_a",
+    "vacances_zone_b",
+    "vacances_zone_c",
 ]
 
 DATETIME_COLS = ["horodate"]
-DATE_COLS     = ["date"]
+DATE_COLS = ["date"]
 
 NUMERIC_COLS = [
     "total_energie_soutiree_wh",
     "nb_points_soutirage",
-    "lat", "lon",
+    "lat",
+    "lon",
     "temperature_2m_mean",
     "relative_humidity_mean",
     "precipitation_sum",
@@ -51,20 +56,24 @@ CATEGORICAL_COLS = [
 
 # ── Parsing args ───────────────────────────────────────────────────────────────
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Prétraitement v_training_data")
     parser.add_argument(
-        "--input", required=True,
+        "--input",
+        required=True,
         help="Chemin vers le CSV brut exporté depuis PostgreSQL",
     )
     parser.add_argument(
-        "--output", default=None,
+        "--output",
+        default=None,
         help="Chemin de sortie (défaut : même dossier que l'input, suffixe _clean)",
     )
     return parser.parse_args()
 
 
 # ── Chargement ─────────────────────────────────────────────────────────────────
+
 
 def load_csv(path: str) -> pd.DataFrame:
     """Détecte automatiquement le séparateur et le decimal."""
@@ -81,26 +90,33 @@ def load_csv(path: str) -> pd.DataFrame:
     decimal = "," if sep == "," and ";" not in first_line else "."
 
     df = pd.read_csv(filepath, sep=sep, decimal=decimal, low_memory=False)
-    logger.info(f"Chargé : {len(df):,} lignes × {len(df.columns)} colonnes (sep='{sep}', decimal='{decimal}')")
+    logger.info(
+        f"Chargé : {len(df):,} lignes × {len(df.columns)} colonnes (sep='{sep}', decimal='{decimal}')"
+    )
     return df
 
 
 # ── Nettoyage ──────────────────────────────────────────────────────────────────
 
+
 def normalize_booleans(df: pd.DataFrame) -> pd.DataFrame:
     """Normalise t/f, True/False, 0/1 → bool Python."""
     bool_map = {
-        "t": True, "f": False,
-        "true": True, "false": False,
-        "1": True, "0": False,
-        True: True, False: False,
-        1: True, 0: False,
+        "t": True,
+        "f": False,
+        "true": True,
+        "false": False,
+        "1": True,
+        "0": False,
+        True: True,
+        False: False,
+        1: True,
+        0: False,
     }
     for col in BOOL_COLS:
         if col in df.columns:
             df[col] = df[col].map(
-                lambda x: bool_map.get(str(x).strip().lower(), None)
-                if pd.notna(x) else None
+                lambda x: bool_map.get(str(x).strip().lower(), None) if pd.notna(x) else None
             )
     return df
 
@@ -141,17 +157,18 @@ def normalize_categoricals(df: pd.DataFrame) -> pd.DataFrame:
 
 def report(df: pd.DataFrame) -> None:
     """Affiche un résumé du DataFrame nettoyé."""
-    logger.info(f"\n{'='*60}")
+    logger.info(f"\n{'=' * 60}")
     logger.info(f"Shape final : {df.shape}")
-    logger.info(f"Nulls par colonne :")
+    logger.info("Nulls par colonne :")
     nulls = df.isnull().sum()
     nulls = nulls[nulls > 0]
     for col, n in nulls.items():
-        logger.info(f"  {col:<35} {n:>6} nulls ({100*n/len(df):.1f}%)")
-    logger.info(f"{'='*60}")
+        logger.info(f"  {col:<35} {n:>6} nulls ({100 * n / len(df):.1f}%)")
+    logger.info(f"{'=' * 60}")
 
 
 # ── Pipeline ───────────────────────────────────────────────────────────────────
+
 
 def preprocess(input_path: str, output_path: str | None) -> pd.DataFrame:
     df = load_csv(input_path)
@@ -177,10 +194,11 @@ def preprocess(input_path: str, output_path: str | None) -> pd.DataFrame:
 
 # ── Main ───────────────────────────────────────────────────────────────────────
 
+
 def main():
     args = parse_args()
     preprocess(args.input, args.output)
 
 
 if __name__ == "__main__":
-    main() 
+    main()

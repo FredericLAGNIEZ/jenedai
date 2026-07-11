@@ -15,11 +15,11 @@ class CambridgePoliceDataTransformer:
 
     # ------------------------------------------------------------------
     # Individual transformations
-     # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
     def rename_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         """Rename columns to snake_case."""
         rename_map = {
-            "Unnamed: 0" : "id"
+            "Unnamed: 0": "id"
             # "Horodate":                                  "horodate",
             # "Région":                                    "region",
             # "Code région":                               "code_region",
@@ -36,14 +36,13 @@ class CambridgePoliceDataTransformer:
             # "Indice représentativité Courbe n°1 + n°2 (%)": "indice_repres_1_2_pct",
             # "Jour max du mois (0/1)":                    "jour_max_mois",
             # "Semaine max du mois (0/1)":                 "semaine_max_mois",
-
         }
         return df.rename(columns=rename_map)
 
     def reset_index(self, df: pd.DataFrame) -> pd.DataFrame:
         """Reset index after drops/filters."""
         return df.reset_index(drop=True)
-        
+
     def remove_invalid_rows(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Drop rows where 'id' is NaN.

@@ -1,17 +1,19 @@
-
-import sys
-from pathlib import Path
 import os
+import sys
+from datetime import timedelta
+from pathlib import Path
+
+import pandas as pd
 
 # Imports légers
-from prefect import flow, task, get_run_logger
+from prefect import flow, get_run_logger, task
 from prefect.tasks import task_input_hash
-from datetime import timedelta
-import pandas as pd
+
 
 def _setup():
     """Initialisation unique au process principal."""
     from dotenv import load_dotenv
+
     load_dotenv(override=True)
 
     src_path = Path(__file__).parents[3]
@@ -22,11 +24,11 @@ def _setup():
 
 
 # from sqlalchemy import create_engine
-#import psycopg2
+# import psycopg2
 # from prefect.blocks.notifications import SlackWebhook  # optionnel
 # from datetime import timedelta
 
-#Local imports
+# Local imports
 # from prefect.settings import PREFECT_API_URL
 # from prefect.runner.storage import GitRepository
 
@@ -44,15 +46,18 @@ def _setup():
 
 ## LOADING DATA
 
+
 @task(
-name="load",
-retries=1,
-retry_delay_seconds=30,
-# cache_key_fn=task_input_hash,
-# cache_expiration=timedelta(hours=1),
-tags=["load"])
-def load_task(data_path: str) -> pd.DataFrame|None:
+    name="load",
+    retries=1,
+    retry_delay_seconds=30,
+    # cache_key_fn=task_input_hash,
+    # cache_expiration=timedelta(hours=1),
+    tags=["load"],
+)
+def load_task(data_path: str) -> pd.DataFrame | None:
     from jenedai.ml.models.load_data_jenedai import load_data
+
     logger = get_run_logger()
     try:
         logger.info("Extracting data from source...")
@@ -66,31 +71,32 @@ def load_task(data_path: str) -> pd.DataFrame|None:
 
 
 @task(
-name="monitor",
-retries=1,
-retry_delay_seconds=30,
-# cache_key_fn=task_input_hash,
-# cache_expiration=timedelta(hours=1),
-tags=["monitor"])
-def monitor_task(data_path_reference: str, data_path: str) -> pd.DataFrame|None:
-    from jenedai.ml.models.load_data_jenedai import load_data
-    from sklearn import datasets
-    from evidently import Dataset
-    from evidently import DataDefinition
-    from evidently import Report
-    from evidently.presets import DataDriftPreset
+    name="monitor",
+    retries=1,
+    retry_delay_seconds=30,
+    # cache_key_fn=task_input_hash,
+    # cache_expiration=timedelta(hours=1),
+    tags=["monitor"],
+)
+def monitor_task(data_path_reference: str, data_path: str) -> pd.DataFrame | None:
     import warnings
+
+    from evidently import DataDefinition, Dataset, Report
+    from evidently.presets import DataDriftPreset
+
+    from jenedai.ml.models.load_data_jenedai import load_data
+
     # Ignore only RuntimeWarnings
-    warnings.simplefilter('ignore', RuntimeWarning)
+    warnings.simplefilter("ignore", RuntimeWarning)
 
     logger = get_run_logger()
 
-    try:     
+    try:
         logger.info("Extracting data from source...")
         reference = load_data(logger, data_path_reference)
         production = load_data(logger, data_path)
 
-        #from evidently import ColumnMapping
+        # from evidently import ColumnMapping
         # Définir les colonnes à surveiller
         # column_mapping = ColumnMapping(
         #     target= 'total_energie_soutiree_wh',
@@ -113,17 +119,18 @@ def monitor_task(data_path_reference: str, data_path: str) -> pd.DataFrame|None:
         return None
 
 
-
 ## VALIDATING DATA
 @task(
-name="validate",
-retries=1,
-retry_delay_seconds=30,
-cache_key_fn=task_input_hash,
-cache_expiration=timedelta(hours=1),
-tags=["validation"])
-def validate_task(df: pd.DataFrame) -> pd.DataFrame|None:
+    name="validate",
+    retries=1,
+    retry_delay_seconds=30,
+    cache_key_fn=task_input_hash,
+    cache_expiration=timedelta(hours=1),
+    tags=["validation"],
+)
+def validate_task(df: pd.DataFrame) -> pd.DataFrame | None:
     from jenedai.ml.models.data_validator_jenedai import DataValidator
+
     logger = get_run_logger()
     try:
         logger.info(f"Running data quality checks on {len(df)} rows...")
@@ -136,16 +143,19 @@ def validate_task(df: pd.DataFrame) -> pd.DataFrame|None:
         logger.error(f" {msg} : {e}")
         return None
 
+
 ## CASTING DATA TYPES
 @task(
-name="cast",
-retries=1,
-retry_delay_seconds=30,
-cache_key_fn=task_input_hash,
-cache_expiration=timedelta(hours=1),
-tags=["cast"])
-def cast_task(df: pd.DataFrame) -> pd.DataFrame|None:
+    name="cast",
+    retries=1,
+    retry_delay_seconds=30,
+    cache_key_fn=task_input_hash,
+    cache_expiration=timedelta(hours=1),
+    tags=["cast"],
+)
+def cast_task(df: pd.DataFrame) -> pd.DataFrame | None:
     from jenedai.ml.models.data_caster_jenedai import DataCaster
+
     logger = get_run_logger()
     try:
         logger.info("Running cast types on df...")
@@ -161,14 +171,16 @@ def cast_task(df: pd.DataFrame) -> pd.DataFrame|None:
 
 ## TRANSFORMING DATA
 @task(
-name="transform",
-retries=1,
-retry_delay_seconds=30,
-cache_key_fn=task_input_hash,
-cache_expiration=timedelta(hours=1),
-tags=["transformation"])
-def transform_task(df: pd.DataFrame) -> pd.DataFrame|None:
+    name="transform",
+    retries=1,
+    retry_delay_seconds=30,
+    cache_key_fn=task_input_hash,
+    cache_expiration=timedelta(hours=1),
+    tags=["transformation"],
+)
+def transform_task(df: pd.DataFrame) -> pd.DataFrame | None:
     from jenedai.ml.models.data_transformer_jenedai import Transformer
+
     logger = get_run_logger()
     try:
         logger.info("Applying transformations...")
@@ -181,11 +193,13 @@ def transform_task(df: pd.DataFrame) -> pd.DataFrame|None:
         logger.error(f" {msg} : {e}")
         return None
 
+
 @task(name="Train Model", retries=1, retry_delay_seconds=30, tags=["Training model"])
 def train(df):
     import mlflow
-    from constants import TRACKING_URI_HF, MODEL_NAME
+    from constants import MODEL_NAME, TRACKING_URI_HF
     from sklearn.pipeline import Pipeline
+
     from jenedai.ml.models.energy_predictor import EnergyPredictor
 
     # Ces 3 variables sont lues par boto3 sous-jacent à MLflow
@@ -219,20 +233,17 @@ def train(df):
         #     pip_requirements=["scikit-learn==1.8.0", "cloudpickle==3.1.2"],
         #     serialization_format=mlflow.sklearn.SERIALIZATION_FORMAT_CLOUDPICKLE
         # )
-    # return mv
+        # return mv
 
         # Créer un pipeline complet (préprocessor + modèle)
-        pipeline = Pipeline([
-            ('preprocessor', predictor.preprocessor),
-            ('model', predictor.model)
-        ])
+        pipeline = Pipeline([("preprocessor", predictor.preprocessor), ("model", predictor.model)])
 
         # Sauvegarder le pipeline complet
         mlflow.sklearn.log_model(
             pipeline,
             name="pipeline",  # Nom du pipeline dans MLflow
             pip_requirements=["scikit-learn==1.8.0", "cloudpickle==3.1.2"],
-            serialization_format=mlflow.sklearn.SERIALIZATION_FORMAT_CLOUDPICKLE
+            serialization_format=mlflow.sklearn.SERIALIZATION_FORMAT_CLOUDPICKLE,
         )
 
         # Enregistrer le pipeline comme modèle
@@ -246,55 +257,57 @@ def train(df):
     return mv
 
 
-
 # To add : Evidenttly AI : sarch for data drif...
+
 
 @task(name="Register Model", retries=1, retry_delay_seconds=30, tags=["Register model"])
 def register(mv):
     import mlflow
     from constants import MODEL_NAME
+
     client = mlflow.MlflowClient()
     client.transition_model_version_stage(
-        name=MODEL_NAME,   # constante globale
+        name=MODEL_NAME,  # constante globale
         version=mv.version,
-        stage="Production"
+        stage="Production",
     )
     print(f"Modèle promu en Production (version {mv.version})")
     return mv.version
-
 
 
 #############################################################################################
 # FLOW
 #############################################################################################
 
+
 @flow(
-name="consume_energy_etl",
-description="ETL pipeline for energy consumption data.",
-log_prints=True,
-timeout_seconds=3600, # 1h max
+    name="consume_energy_etl",
+    description="ETL pipeline for energy consumption data.",
+    log_prints=True,
+    timeout_seconds=3600,  # 1h max
 )
-def etl():   
+def etl():
     """
     Main Pipeline entry
     """
-    from jenedai.ml.utils.logs import configure_logging
     from jenedai.ml.utils.get_console import get_console
+    from jenedai.ml.utils.logs import configure_logging
+
     data_folder = Path("./data")
     logs_folder = Path(__file__).parents[3] / "logs"
     print(f"CWD: {os.getcwd()}")
     print(f"__file__: {__file__}")
-    
+
     data_path = data_folder / "extract_cvs_engis_dataset.csv"
     print(f"data_path: {data_path}")
-    data_path_reference = data_folder / "extract_cvs_engis_dataset_reference.csv"    
+    data_path_reference = data_folder / "extract_cvs_engis_dataset_reference.csv"
     print(f" data_path_reference: {data_path_reference}")
 
     if data_path.exists():
         print(f"data_path exists: {data_path.exists()}")
         print(f"CSV size: {os.path.getsize(data_path) if data_path.exists() else 'NOT FOUND'}")
     else:
-        print(f"Contenu du dossier data: {list(Path(os.getcwd()).glob('data/*'))}") 
+        print(f"Contenu du dossier data: {list(Path(os.getcwd()).glob('data/*'))}")
 
     # Hors système de logging
     console = get_console()
@@ -302,15 +315,15 @@ def etl():
     console.print("\n[bold cyan]" + "=" * 60 + "[/bold cyan]")
     console.print("[bold cyan]🔍 ML Enedis Pipeline[/bold cyan]")
     console.print("[bold cyan]" + "=" * 60 + "[/bold cyan]\n")
-    
+
     # ✅ Système de logging
     logger = configure_logging(
         path_logs=logs_folder,
-        name=f"ML Enedis",
+        name="ML Enedis",
         profile="basic",
     )
     logger.info("Système de logs configuré")
-         
+
     # Data_pipeline : loading
     try:
         console.print(f"Data_path : {data_path}")
@@ -324,8 +337,8 @@ def etl():
     except Exception as e:
         msg = "Data Loading Pipeline Error "
         logger.error(f" ❌ {msg} : {e}")
-        raise 
-    
+        raise
+
     # Data_pipeline : Monitoring (EVIDENTLY AI)
     try:
         monitor_task(str(data_path_reference), str(data_path))
@@ -333,8 +346,7 @@ def etl():
     except Exception as e:
         msg = "Data Loading Pipeline Error "
         logger.error(f" ❌ {msg} : {e}")
-        raise 
-
+        raise
 
     # Data_pipeline : validation
     try:
@@ -349,8 +361,7 @@ def etl():
     except Exception as e:
         msg = "Data Validation Pipeline Error "
         logger.error(f" ❌ {msg} : {e}")
-        raise 
-
+        raise
 
     # Data_pipeline : cast
     try:
@@ -365,8 +376,7 @@ def etl():
     except Exception as e:
         msg = "Data Cast Pipeline Error "
         logger.error(f" ❌ {msg} : {e}")
-        raise 
-
+        raise
 
     # Data_pipeline : transformation
     try:
@@ -381,9 +391,9 @@ def etl():
     except Exception as e:
         msg = "Data Transformation Pipeline Error "
         logger.error(f" ❌ {msg} : {e}")
-        raise 
+        raise
 
-     # Data_pipeline : ML Training (MLflow)
+    # Data_pipeline : ML Training (MLflow)
     try:
         console.print("Entrainement du modèle...")
         mv = train(df)
@@ -394,7 +404,7 @@ def etl():
     except Exception as e:
         msg = "Model TrainingPipeline Error "
         logger.error(f" ❌ {msg} : {e}")
-        raise 
+        raise
 
     # Data_pipeline : Model Register (MLflow)
     try:
@@ -403,35 +413,34 @@ def etl():
     except Exception as e:
         msg = "Model Register Pipeline Error "
         logger.error(f" ❌ {msg} : {e}")
-        raise 
+        raise
 
 
 if __name__ == "__main__":
     _setup()
     try:
-        #etl()
+        # etl()
         #  Démarre un scheduler local, attends que le cron se déclenche
         #  Se connecte à Prefect (local ou cloud)
         #  Il enregistre le déploiement auprès du serveur Prefect (API) pour qu'il soit visible dans l'UI.
         # 3 — Spawn un subprocess à chaque run
-        # Quand le cron se déclenche, il lance un nouveau process Python qui ré-importe ton fichier et exécute etl().        
+        # Quand le cron se déclenche, il lance un nouveau process Python qui ré-importe ton fichier et exécute etl().
         etl.serve(
-             name="consume-energy",
-             cron="*/10 * * * *",          # tous les jours à 6h UTC
-             tags=["energy", "etl"],
-             description="Daily energy consumption ETL and ML.",
-             pause_on_shutdown=False,
-             limit=1
+            name="consume-energy",
+            cron="*/10 * * * *",  # tous les jours à 6h UTC
+            tags=["energy", "etl"],
+            description="Daily energy consumption ETL and ML.",
+            pause_on_shutdown=False,
+            limit=1,
         )
     except KeyboardInterrupt:
         print("\n\n⚠️ Interruption utilisateur")
     except Exception as e:
         print(f"\n❌ Erreur : {e}")
 
-
         # Deploiement directement dans le script python
         #  if __name__ == "__main__":
-        #     try:            
+        #     try:
         #         etl.deploy(
         #             name="consume-energy",
         #             work_pool_name="energy-pool"
@@ -441,14 +450,12 @@ if __name__ == "__main__":
         #             source=GitRepository(
         #                 url="https://github.com/Jenedai/jenedai",
         #                 branch="mlops_frederic",
-        #             ))            
+        #             ))
         #     except KeyboardInterrupt:
         #         print("\n\n⚠️  Interruption utilisateur")
         #     except Exception as e:
         #         print(f"\n❌ Erreur fatale: {e}")
 
 
-
-
-#Erreur dans mlflow :Failed to list artifacts in s3://mlflow-artifacts/4/9ff72effe59845d09acf187607b5f755/artifacts:
+# Erreur dans mlflow :Failed to list artifacts in s3://mlflow-artifacts/4/9ff72effe59845d09acf187607b5f755/artifacts:
 #  Forbidden: No such key: a652ae928559f7425f33a94d79eff033

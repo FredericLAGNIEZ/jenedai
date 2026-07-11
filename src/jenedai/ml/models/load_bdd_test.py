@@ -1,4 +1,3 @@
-
 # def create_postgres_table():
 #     '''
 #     Create the cpd_incidents table in Postgres DB (cpd_db) if it doesn't exist.
@@ -14,7 +13,7 @@
 
 #     # create cursor object to execute SQL
 #     cur = conn.cursor()
-    
+
 #     # execute query to create the table
 #     create_table_query = '''
 #         CREATE TABLE IF NOT EXISTS cpd_incidents (
@@ -28,7 +27,7 @@
 #             year INTEGER,
 #             month INTEGER,
 #             day INTEGER,
-#             hour INTEGER, 
+#             hour INTEGER,
 #             minute INTEGER,
 #             second INTEGER
 #         )
@@ -45,7 +44,7 @@
 # @task
 # def load_into_postgres(df):
 #     '''
-#     Loads the transformed data passed in as a DataFrame 
+#     Loads the transformed data passed in as a DataFrame
 #     into the 'cpd_incidents' table in our Postgres instance.
 #     '''
 #     # create table to insert data into as necessary
@@ -53,6 +52,6 @@
 
 #     # create Engine object to connect to DB
 #     engine = create_engine())
-        
+
 #     # # insert data into Postgres DB into the 'cpd_incidents' table
 #     # df.to_sql('cpd_incidents', engine, if_exists='replace')

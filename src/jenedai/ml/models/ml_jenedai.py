@@ -1,26 +1,25 @@
-from prefect import task
-import pandas as pd
 import numpy as np
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+import pandas as pd
+from prefect import task
 from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 
 class MLPipeline:
-
     TARGET = "total_energie_soutiree_wh"
     TEST_SIZE = 0.2
     RANDOM_STATE = 0
 
     def __init__(self):
         self.preprocessor: ColumnTransformer | None = None
-        self.regressor: LinearRegression | None     = None
-        self.numeric_features: list[str]            = []
-        self.categorical_features: list[str]        = []
+        self.regressor: LinearRegression | None = None
+        self.numeric_features: list[str] = []
+        self.categorical_features: list[str] = []
 
     # ------------------------------------------------------------------ #
     #  Private helpers                                                     #
@@ -28,7 +27,7 @@ class MLPipeline:
 
     def _detect_features(self, X: pd.DataFrame) -> None:
         """Automatically detect numeric and categorical column names."""
-        self.numeric_features     = []
+        self.numeric_features = []
         self.categorical_features = []
         for col, dtype in X.dtypes.items():
             if ("float" in str(dtype)) or ("int" in str(dtype)):
@@ -40,17 +39,23 @@ class MLPipeline:
 
     def _build_preprocessor(self) -> ColumnTransformer:
         """Build the ColumnTransformer from detected feature lists."""
-        numeric_transformer = Pipeline(steps=[
-            ("imputer", SimpleImputer(strategy="mean")),
-            ("scaler",  StandardScaler()),
-        ])
-        categorical_transformer = Pipeline(steps=[
-            ("encoder", OneHotEncoder(drop="first", handle_unknown="ignore")),
-        ])
-        return ColumnTransformer(transformers=[
-            ("num", numeric_transformer,     self.numeric_features),
-            ("cat", categorical_transformer, self.categorical_features),
-        ])
+        numeric_transformer = Pipeline(
+            steps=[
+                ("imputer", SimpleImputer(strategy="mean")),
+                ("scaler", StandardScaler()),
+            ]
+        )
+        categorical_transformer = Pipeline(
+            steps=[
+                ("encoder", OneHotEncoder(drop="first", handle_unknown="ignore")),
+            ]
+        )
+        return ColumnTransformer(
+            transformers=[
+                ("num", numeric_transformer, self.numeric_features),
+                ("cat", categorical_transformer, self.categorical_features),
+            ]
+        )
 
     # ------------------------------------------------------------------ #
     #  Tasks                                                               #
@@ -65,7 +70,8 @@ class MLPipeline:
         X = df.drop(columns=[self.TARGET])
         Y = df[self.TARGET]
         X_train, X_test, Y_train, Y_test = train_test_split(
-            X, Y,
+            X,
+            Y,
             test_size=self.TEST_SIZE,
             random_state=self.RANDOM_STATE,
         )
@@ -77,7 +83,7 @@ class MLPipeline:
     def ml_transform(
         self,
         X_train: pd.DataFrame,
-        X_test:  pd.DataFrame,
+        X_test: pd.DataFrame,
     ) -> tuple[np.ndarray, np.ndarray]:
         """
         Detect features, build and fit the preprocessor on the train set,
@@ -94,7 +100,7 @@ class MLPipeline:
         print()
 
         print("Performing preprocessings on test set...")
-        X_test_t = self.preprocessor.transform(X_test)   # transform only — no fit!
+        X_test_t = self.preprocessor.transform(X_test)  # transform only — no fit!
         print("...Done.")
         print(X_test_t[:5])
         print()
@@ -117,8 +123,8 @@ class MLPipeline:
     @task
     def evaluate_model(
         self,
-        X_test:  np.ndarray,
-        Y_test:  pd.Series,
+        X_test: np.ndarray,
+        Y_test: pd.Series,
     ) -> dict[str, float]:
         """Evaluate the model on the test set and log metrics."""
         if self.regressor is None:
@@ -128,9 +134,9 @@ class MLPipeline:
         Y_pred = self.regressor.predict(X_test)
 
         metrics = {
-            "r2"   : round(r2_score(Y_test, Y_pred), 4),
-            "mae"  : round(mean_absolute_error(Y_test, Y_pred), 4),
-            "rmse" : round(np.sqrt(mean_squared_error(Y_test, Y_pred)), 4),
+            "r2": round(r2_score(Y_test, Y_pred), 4),
+            "mae": round(mean_absolute_error(Y_test, Y_pred), 4),
+            "rmse": round(np.sqrt(mean_squared_error(Y_test, Y_pred)), 4),
         }
 
         print(f"  R²   : {metrics['r2']}")
@@ -143,18 +149,20 @@ class MLPipeline:
     def save_model(self, path: str = "model.joblib") -> None:
         """Persist the trained model and preprocessor to disk."""
         import joblib
+
         if self.regressor is None or self.preprocessor is None:
             raise RuntimeError("Nothing to save — pipeline not fully trained.")
 
         payload = {
-            "regressor"   : self.regressor,
+            "regressor": self.regressor,
             "preprocessor": self.preprocessor,
         }
         joblib.dump(payload, path)
         print(f"Model saved → {path}\n")
-        
-        
+
         # # Automatically detect names of numeric/categorical columns
+
+
 # numeric_features = []
 # categorical_features = []
 # for i,t in X.dtypes.items():

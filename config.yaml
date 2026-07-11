@@ -1,0 +1,17 @@
+# config.yaml
+default_profile: local
+
+profiles:
+  local:
+    mlflow_tracking_uri: "http://localhost:5000"
+    # ... tes autres clés existantes (db, etc.)
+
+huggingface:
+  repo_id: "Frederic-LAGNIEZ/api_jenedai"
+  token_env_var: "HF_TOKEN"
+
+model_registry:
+  name: "random_forest_model"
+  alias: "champion"
+
+

@@ -1,36 +1,19 @@
-<<<<<<< HEAD
-
-import os
 import logging
-from rich.logging import RichHandler, Console
+import os
+import sys
+from datetime import datetime
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
-from datetime import datetime
-
-import sys
-=======
-import logging
-import os
-import sys
-
-from datetime import datetime
-from logging.handlers import (
-    RotatingFileHandler,
-    TimedRotatingFileHandler
-)
-from rich.logging import RichHandler
-from get_console import get_console
->>>>>>> mlops_frederic
 from pathlib import Path
+
+from rich.logging import RichHandler
+
+from jenedai.ml.utils.get_console import get_console
 
 # Chemin absolu vers le dossier contenant vos modules
 chemin_module = Path(__file__).resolve().parent
 # Ajouter le chemin à sys.path
 sys.path.append(str(chemin_module))
 
-<<<<<<< HEAD
-from get_console import get_console
-=======
->>>>>>> mlops_frederic
 
 def configure_logging(
     path_logs: str,
@@ -61,12 +44,7 @@ def configure_logging(
 
     # 1. Rich console (toujours activée)
     console = get_console()
-    rich_handler = RichHandler(
-        console=console,
-        show_path=False,
-        rich_tracebacks=True,
-        markup=True
-    )
+    rich_handler = RichHandler(console=console, show_path=False, rich_tracebacks=True, markup=True)
     rich_handler.setLevel(logging.INFO)
     logger.addHandler(rich_handler)
 
@@ -112,4 +90,3 @@ def configure_logging(
         raise ValueError(f"Profil inconnu: {profile}. Utilisez 'basic' ou 'production'.")
 
     return logger
-

@@ -1,0 +1,7 @@
+IL y a un pb d'accès à MLflow sur HF, est ce depuis le dépassement de quota? 
+L'esapce doit faire références aux clés de Supabase, mais c'est bizarre qu'il ne se reconstruise pas
+J'ai tjrs mon esapce S3 que je peux utilsie rà la base po et éventuellement une bdd en local si ca ne marche plus....
+
+
+Veirifer l'artifact en loecal
+curl "http://localhost:5000/api/2.0/mlflow/experiments/get?experiment_id=2" | python3 -m json.tool | grep artifact

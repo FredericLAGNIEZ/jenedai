@@ -1,5 +1,6 @@
-import os
 import json
+import os
+
 import streamlit as st
 from dotenv import load_dotenv
 
@@ -21,10 +22,9 @@ if not os.path.exists(env_path):
 
 # Vérifie finalement si le .env existe avant de le charger
 if not os.path.exists(env_path):
-    st.error(f"❌ .env non trouvé")
+    st.error("❌ .env non trouvé")
     st.divider()
 else:
-
     # Récupérer les variables d'environnement depuis le .env
     load_dotenv(env_path, override=True)
     project_name = os.getenv("ProjectName", "N/A")
@@ -40,13 +40,15 @@ else:
         # .config dans le même dossier que streamlit_app.py (Services/Streamlit/src/.config)
         config_path = os.path.join(script_dir, ".config", filename)
         try:
-            with open(config_path, 'r', encoding='utf-8') as f:
+            with open(config_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except FileNotFoundError:
             return default if default is not None else {}
 
     SERVICES_CONFIG = load_json_file("services_config.json", {"services": []})
-    EXTERNAL_SERVICES_CONFIG = load_json_file("external_services_config.json", {"external_services": []})
+    EXTERNAL_SERVICES_CONFIG = load_json_file(
+        "external_services_config.json", {"external_services": []}
+    )
     APIS_CONFIG = load_json_file("apis_config.json", {"apis": []})
 
     # Charger les APIs depuis la configuration JSON uniquement
@@ -58,12 +60,14 @@ else:
         env_url = os.getenv(cfg.get("env_key", ""), "")
         url = env_url or cfg.get("url", "")
         if url:
-            external_sources.append({
-                "name": cfg.get("name", ""),
-                "url": url,
-                "icon": cfg.get("icon", "https://cdn.simpleicons.org/link"),
-                "description": cfg.get("description", "")
-            })
+            external_sources.append(
+                {
+                    "name": cfg.get("name", ""),
+                    "url": url,
+                    "icon": cfg.get("icon", "https://cdn.simpleicons.org/link"),
+                    "description": cfg.get("description", ""),
+                }
+            )
 
     # En-tête
     st.title("🚀 Infrastructure Dashboard")
@@ -92,15 +96,22 @@ else:
         cols_count = min(8, max(1, len(services_names)))
         cols = st.columns(cols_count)
         for idx, service in enumerate(services_names):
-            service_cfg = next((s for s in SERVICES_CONFIG.get("services", []) if s.get("name") == service), {})
+            service_cfg = next(
+                (s for s in SERVICES_CONFIG.get("services", []) if s.get("name") == service), {}
+            )
             display_name = service_cfg.get("display_name", service)
             icon_url = service_cfg.get("icon", "")
-            hf_url = service_cfg.get("repo_path_template", "https://huggingface.co/spaces/{project}/{service}/tree/main").format(project=project_name, service=service)
-            hf_space_url = service_cfg.get("space_url_template", "https://{project}-{service}.hf.space/").format(project=project_name, service=service)
+            hf_url = service_cfg.get(
+                "repo_path_template", "https://huggingface.co/spaces/{project}/{service}/tree/main"
+            ).format(project=project_name, service=service)
+            hf_space_url = service_cfg.get(
+                "space_url_template", "https://{project}-{service}.hf.space/"
+            ).format(project=project_name, service=service)
 
             col = cols[idx % cols_count]
             with col:
-                st.markdown(f"""
+                st.markdown(
+                    f"""
                 <div style="
                     display: flex;
                     flex-direction: column;
@@ -131,7 +142,9 @@ else:
                         margin-top: 10px;
                     ">Accéder →</a>
                 </div>
-                """, unsafe_allow_html=True)
+                """,
+                    unsafe_allow_html=True,
+                )
 
     st.markdown("---")
 
@@ -145,7 +158,8 @@ else:
         for idx, service in enumerate(external_sources):
             col = cols[idx % len(cols)]
             with col:
-                st.markdown(f"""
+                st.markdown(
+                    f"""
                 <div style="
                     padding: 14px;
                     border-radius: 10px;
@@ -154,10 +168,10 @@ else:
                     text-align: center;
                     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 ">
-                    <img src="{service['icon']}" alt="Icône {service['name']}" style="width: 24px; height: 24px; margin-bottom: 6px;" />
-                    <h5 style="margin: 6px 0 4px; font-size: 14px;">{service['name']}</h5>
-                    <p style="font-size: 11px; word-break: break-all; margin-bottom: 8px;">{service['description']}</p>
-                    <a href="{service['url']}" target="_blank" role="button" aria-label="Ouvrir {service['name']}" style="
+                    <img src="{service["icon"]}" alt="Icône {service["name"]}" style="width: 24px; height: 24px; margin-bottom: 6px;" />
+                    <h5 style="margin: 6px 0 4px; font-size: 14px;">{service["name"]}</h5>
+                    <p style="font-size: 11px; word-break: break-all; margin-bottom: 8px;">{service["description"]}</p>
+                    <a href="{service["url"]}" target="_blank" role="button" aria-label="Ouvrir {service["name"]}" style="
                         display: inline-flex;
                         align-items: center;
                         justify-content: center;
@@ -170,7 +184,9 @@ else:
                         font-size: 11px;
                     ">Ouvrir ↗</a>
                 </div>
-                """, unsafe_allow_html=True)
+                """,
+                    unsafe_allow_html=True,
+                )
 
     st.markdown("---")
 
@@ -181,11 +197,12 @@ else:
         st.info("ℹ️ Aucune API configurée dans apis_config.json")
     else:
         for api in api_items:
-            icon = api.get('icon', 'https://cdn.simpleicons.org/api')
-            name = api.get('name', '')
-            url = api.get('url', '')
-            desc = api.get('description', '')
-            st.markdown(f"""
+            icon = api.get("icon", "https://cdn.simpleicons.org/api")
+            name = api.get("name", "")
+            url = api.get("url", "")
+            desc = api.get("description", "")
+            st.markdown(
+                f"""
             <div style="
                 display: flex;
                 gap: 10px;
@@ -220,7 +237,9 @@ else:
                     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
                 ">Ouvrir ↗</a>
             </div>
-            """, unsafe_allow_html=True)
+            """,
+                unsafe_allow_html=True,
+            )
 
     st.markdown("---")
     # Section Data Monitoring
@@ -229,16 +248,19 @@ else:
     col1, col2 = st.columns(2)
     with col1:
         if st.button("📈 Plotly Visualisation", key="plotly_btn"):
-            st.session_state.show_plotly = not st.session_state.get('show_plotly', False)
+            st.session_state.show_plotly = not st.session_state.get("show_plotly", False)
     with col2:
-        st.markdown("[📊 Grafana Dashboard](https://jenedai.grafana.net/public-dashboards/23995dd111fa41d7b5d4739ae33a36a9)", unsafe_allow_html=True)
+        st.markdown(
+            "[📊 Grafana Dashboard](https://jenedai.grafana.net/public-dashboards/23995dd111fa41d7b5d4739ae33a36a9)",
+            unsafe_allow_html=True,
+        )
 
-    if st.session_state.get('show_plotly', False):
+    if st.session_state.get("show_plotly", False):
         with st.expander("Visualisation des Prédictions avec Plotly", expanded=True):
             # Code pour la visualisation
+            import pandas as pd
             import plotly.express as px
             from sqlalchemy import create_engine
-            import pandas as pd
 
             st.write("🔗 Connexion à la base de données...")
 
@@ -259,18 +281,20 @@ else:
                         labels={
                             "value": "Consommation énergétique",
                             "prediction_timestamp": "Timestamp",
-                            "variable": "Type"
+                            "variable": "Type",
                         },
-                        title="Consommation énergétique : Réel vs Prédiction"
+                        title="Consommation énergétique : Réel vs Prédiction",
                     )
                     fig.update_traces(
-                        hovertemplate="<br>".join([
-                            "Timestamp: %{x}",
-                            "Type: %{legendgroup}",
-                            "Valeur: %{y}",
-                            "Erreur absolue: %{customdata[0]}"
-                        ]),
-                        customdata=df[["abs_error"]].values
+                        hovertemplate="<br>".join(
+                            [
+                                "Timestamp: %{x}",
+                                "Type: %{legendgroup}",
+                                "Valeur: %{y}",
+                                "Erreur absolue: %{customdata[0]}",
+                            ]
+                        ),
+                        customdata=df[["abs_error"]].values,
                     )
                     fig.update_layout(hovermode="x unified")
                     st.plotly_chart(fig, use_container_width=True)
@@ -283,8 +307,12 @@ else:
                         size="abs_error",
                         color="abs_error",
                         hover_data=["prediction_timestamp", "entity_id", "run_id"],
-                        labels={"ground_truth": "Valeur réelle", "prediction": "Prédiction", "abs_error": "Erreur absolue"},
-                        title="Valeurs réelles vs Prédictions"
+                        labels={
+                            "ground_truth": "Valeur réelle",
+                            "prediction": "Prédiction",
+                            "abs_error": "Erreur absolue",
+                        },
+                        title="Valeurs réelles vs Prédictions",
                     )
                     fig2.add_shape(
                         type="line",
@@ -292,7 +320,7 @@ else:
                         y0=df["ground_truth"].min(),
                         x1=df["ground_truth"].max(),
                         y1=df["ground_truth"].max(),
-                        line=dict(color="red", dash="dash")
+                        line=dict(color="red", dash="dash"),
                     )
                     st.plotly_chart(fig2, use_container_width=True)
                 else:
