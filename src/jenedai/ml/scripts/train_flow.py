@@ -10,7 +10,7 @@ import pandas as pd
 from prefect import flow, get_run_logger, task
 from prefect.tasks import task_input_hash
 
-from jenedai.ml.models.evidently import monitor_task
+from jenedai.ml.models.evidently_monitoring import monitor_task
 
 
 # ── Setup ─────────────────────────────────────────

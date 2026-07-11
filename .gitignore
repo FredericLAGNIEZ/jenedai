@@ -280,3 +280,4 @@ src/jenedai/ml/scripts/main.py
 data/
 data/.github/scripts/secrets/setup_secrets.bat
 >>>>>>> mlops_frederic
+.env
