@@ -248,8 +248,8 @@ class EnergyPredictor:
         }
 
     def __repr__(self):
-        status = "entraîné" if self.model else "non entraîné"
-        return f"EnergyPredictor(n_estimators={self.n_estimators}, max_depth={self.max_depth}) [{status}]"
+        status = "entraîné" if self.model else "non entraîné"        
+        return f"EnergyPredictor(n_estimators={self.n_estimators}, max_depth={self.max_depth})[{status}]"
 
     # ── Save ────────────────────────────────────────────────────────────
 

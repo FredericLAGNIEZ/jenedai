@@ -8,6 +8,7 @@ Distributes AWS credentials + service-specific secrets to each space
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 from huggingface_hub import HfApi
 
@@ -135,7 +136,7 @@ def main():
 
         # Add shared AWS secrets
         if not shared_secrets:
-            print(f"[WARN] No shared AWS secrets available")
+            print("[WARN] No shared AWS secrets available")
         else:
             for secret_name, secret_value in shared_secrets.items():
                 if not secret_value:

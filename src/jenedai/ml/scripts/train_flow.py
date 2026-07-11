@@ -437,7 +437,6 @@ def etl(source: str = "s3"):
             for col in NUMERIC_COLS:
                 if col in df_reference.columns:
                     df_reference[col] = pd.to_numeric(df_reference[col], errors="coerce")
-                    # logger_file.info(f"{col} (reference) dtype après cast: {df_reference[col].dtype}")
                 if col in df.columns:
                     df[col] = pd.to_numeric(df[col], errors="coerce")
                     # logger_file.info(f"{col} (production) dtype après cast: {df[col].dtype}")
@@ -563,11 +562,14 @@ if __name__ == "__main__":
     if args.deploy:
         # Mode scheduler — tourne en permanence, attend le cron
         try:
-            #  Démarre un scheduler local, attends que le cron se déclenche. Le scheduler est un processus Python qui tourne en permanence.
+            #  Démarre un scheduler local, attends que le cron se déclenche.
+            # Le scheduler est un processus Python qui tourne en permanence.
             # Il attend que le cron se déclenche
-            # Il se connecte à Prefect (local ou cloud). Il enregistre le déploiement auprès du serveur Prefect (API) pour qu'il soit visible dans l'UI.
+            # Il se connecte à Prefect (local ou cloud). Il enregistre le déploiement auprès 
+            # u serveur Prefect (API) pour qu'il soit visible dans l'UI.
             # 3 — Spawn un subprocess à chaque run
-            # Quand le cron se déclenche, il lance un nouveau process Python qui ré-importe ton fichier et exécute etl().
+            # Quand le cron se déclenche, il lance un nouveau process Python qui ré-importe
+            # ton fichier            # et exécute etl().
             # Appel du flow avec le paramètre source
             etl.serve(
                 name="consume-energy",

@@ -98,7 +98,7 @@ class StatisticalTestSelector:
 
         # ✅ Séparer numérique et catégoriel
         X_numeric = X.select_dtypes(include=[np.number])
-        X_categorical = X.select_dtypes(exclude=[np.number])
+        #X_categorical = X.select_dtypes(exclude=[np.number])
 
         if X_numeric.shape[1] == 0:
             raise ValueError("Aucune colonne numérique dans X.")
